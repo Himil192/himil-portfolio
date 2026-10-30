@@ -30,7 +30,7 @@ export default function ScrollSequence() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const chapterEls = useRef<(HTMLDivElement | null)[]>([]);
   // Frames are the heaviest asset, so visitors who never get near the section skip them.
-  const near = useInView(section, "200% 0px");
+  const near = useInView(section, "300% 0px");
 
   useEffect(() => {
     if (near) startLoadingFrames();
@@ -50,6 +50,9 @@ export default function ScrollSequence() {
       const dpr = Math.min(window.devicePixelRatio, 2);
       element.width = Math.round(element.clientWidth * dpr);
       element.height = Math.round(element.clientHeight * dpr);
+      // Matches the page while the first frames are still loading.
+      context.fillStyle = "#0a0a0b";
+      context.fillRect(0, 0, element.width, element.height);
       dirty = true;
     };
 
