@@ -55,20 +55,23 @@ export default function Nav() {
           <CommandMenu />
           <ThemeSwitch name="theme-desktop" />
         </div>
-        {/* A details element, so the menu still opens if JavaScript never runs. */}
-        <details ref={menu} onKeyDown={closeOnEscape} className="lg:hidden">
-          <summary className="nav-toggle eyebrow !text-ink">Menu</summary>
-          <div className="nav-panel">
-            <nav aria-label="Mobile" onClick={close} className="flex flex-col gap-3">
+        <div className="flex items-center gap-2 lg:hidden">
+          <ThemeSwitch name="theme-mobile" />
+          {/* A details element, so the menu still opens if JavaScript never runs. */}
+          <details ref={menu} onKeyDown={closeOnEscape}>
+            <summary className="nav-toggle" aria-label="Menu">
+              <span aria-hidden />
+              <span aria-hidden />
+            </summary>
+            <nav aria-label="Mobile" onClick={close} className="nav-panel">
               {navLinks.map((link) => (
                 <a key={link.href} href={link.href} className="font-display text-3xl">
                   {link.label}
                 </a>
               ))}
             </nav>
-            <ThemeSwitch name="theme-mobile" />
-          </div>
-        </details>
+          </details>
+        </div>
       </div>
     </header>
   );

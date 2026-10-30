@@ -442,13 +442,57 @@ body::after {
 }
 
 .nav-toggle {
+  position: relative;
+  display: block;
+  width: 2.25rem;
+  height: 2.25rem;
   cursor: pointer;
   list-style: none;
-  padding: 0.5rem 0;
+  color: var(--color-ink);
+  transition: color 0.3s ease;
 }
 
 .nav-toggle::-webkit-details-marker {
   display: none;
+}
+
+.nav-toggle:hover,
+.nav-toggle:focus-visible,
+details[open] > .nav-toggle {
+  color: var(--color-accent);
+}
+
+/* Two fine lines, the lower one shorter, that fold into a cross when the menu opens. */
+.nav-toggle span {
+  position: absolute;
+  right: 0.4rem;
+  left: 0.4rem;
+  height: 1.5px;
+  background: currentcolor;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.nav-toggle span:first-child {
+  top: 14px;
+}
+
+.nav-toggle span:last-child {
+  top: 21px;
+  transform: scaleX(0.65);
+  transform-origin: right;
+}
+
+.nav-toggle:hover span:last-child {
+  transform: scaleX(1);
+}
+
+details[open] > .nav-toggle span:first-child {
+  transform: translateY(3.5px) rotate(45deg);
+}
+
+details[open] > .nav-toggle span:last-child {
+  transform: translateY(-3.5px) rotate(-45deg);
+  transform-origin: center;
 }
 
 .nav-panel {
@@ -459,11 +503,18 @@ body::after {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 1rem;
+  gap: 0.75rem;
   border: 1px solid color-mix(in srgb, var(--color-ink) var(--hairline), transparent);
   border-radius: 1rem;
   background: var(--color-canvas);
   padding: 1.25rem 1.5rem;
+}
+
+@media (width >= 40rem) {
+  .nav-panel {
+    left: auto;
+    width: 18rem;
+  }
 }
 
 .skip-link {
