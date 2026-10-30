@@ -43,6 +43,30 @@ export function setThemeChoice(choice: ThemeChoice) {
   listeners.forEach((listener) => listener());
 }
 
+// The gold sweep is for a visitor's own choice; device changes in System mode stay instant.
+export function changeTheme(choice: ThemeChoice) {
+  const before = getResolvedTheme();
+  const instant =
+    !document.startViewTransition ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (instant) {
+    setThemeChoice(choice);
+    return;
+  }
+
+  // Two sweeps cannot share a transition name, so a quick second click replaces the first.
+  document.querySelector(".theme-sweep")?.remove();
+  const sweep = document.createElement("div");
+  sweep.className = "theme-sweep";
+
+  const transition = document.startViewTransition(() => {
+    setThemeChoice(choice);
+    if (getResolvedTheme() !== before) document.body.append(sweep);
+  });
+  transition.finished.finally(() => sweep.remove());
+}
+
 export function subscribeTheme(listener: () => void) {
   const query = window.matchMedia(LIGHT_QUERY);
   listeners.add(listener);

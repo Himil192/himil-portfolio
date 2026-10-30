@@ -96,7 +96,8 @@ export default function ShaderCanvas({
         gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
         style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
       >
-        <Surface name={name} theme={theme} still={still} />
+        {/* A material cannot swap its fragment shader, so a new name needs a new surface. */}
+        <Surface key={name} name={name} theme={theme} still={still} />
       </Canvas>
     </WebGLBoundary>
   );

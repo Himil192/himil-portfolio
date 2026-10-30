@@ -2,7 +2,7 @@
 
 import { KeyboardEvent, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { navLinks, site } from "@/content/site";
-import { setThemeChoice } from "@/lib/theme";
+import { changeTheme } from "@/lib/theme";
 
 type Command = { label: string; run: () => void };
 
@@ -25,9 +25,9 @@ const commands: Command[] = [
   ...navLinks.map((link) => ({ label: `Go to ${link.label}`, run: () => goTo(link.href) })),
   { label: "Copy email address", run: () => void navigator.clipboard.writeText(site.email) },
   { label: "Download resume", run: download },
-  { label: "Use light theme", run: () => setThemeChoice("light") },
-  { label: "Use dark theme", run: () => setThemeChoice("dark") },
-  { label: "Use system theme", run: () => setThemeChoice("system") },
+  { label: "Use light theme", run: () => changeTheme("light") },
+  { label: "Use dark theme", run: () => changeTheme("dark") },
+  { label: "Use system theme", run: () => changeTheme("system") },
 ];
 
 export default function CommandMenu() {

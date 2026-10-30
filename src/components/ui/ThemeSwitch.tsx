@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 import { useThemeChoice } from "@/lib/hooks";
-import { setThemeChoice, ThemeChoice } from "@/lib/theme";
+import { changeTheme, ThemeChoice } from "@/lib/theme";
 
 const icons: Record<ThemeChoice, ReactNode> = {
   system: (
@@ -33,7 +33,7 @@ export default function ThemeSwitch({ name }: { name: string }) {
             name={name}
             value={option}
             checked={choice === option}
-            onChange={() => setThemeChoice(option)}
+            onChange={() => changeTheme(option)}
             className="sr-only"
           />
           <span className="sr-only">{option}</span>
