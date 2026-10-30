@@ -112,7 +112,7 @@ export default function ScrollSequence() {
 
   if (reduced) {
     return (
-      <section id="story" className="shell py-24">
+      <section id="story" data-inspect="ScrollSequence" className="shell py-24">
         <p className="eyebrow">Story</p>
         <h2 className="section-title">
           My <span className="text-foil italic">story</span>
@@ -140,7 +140,7 @@ export default function ScrollSequence() {
   }
 
   return (
-    <section id="story" ref={section} className="relative h-[300vh]">
+    <section id="story" data-inspect="ScrollSequence" ref={section} className="relative h-[300vh]">
       <div className="sticky top-0 h-dvh w-full overflow-hidden">
         <canvas ref={canvas} className="absolute inset-0 h-full w-full" aria-hidden />
         <div className="shell relative flex h-full items-end pb-20 md:items-center md:pb-0">

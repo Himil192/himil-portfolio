@@ -3,7 +3,7 @@ import ProjectCard from "./ProjectCard";
 
 export default function Projects() {
   return (
-    <section id="work" className="shell py-28 md:py-44">
+    <section id="work" data-inspect="Projects" className="shell py-28 md:py-44">
       <p className="eyebrow" data-reveal>
         Selected work
       </p>

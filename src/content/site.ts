@@ -6,6 +6,7 @@ export const site = {
   location: "Gujarat, India",
   availability: "Open to frontend developer roles",
   email: "himilprajapati@gmail.com",
+  repo: "https://github.com/Himil192/himil-portfolio",
   // Set NEXT_PUBLIC_SITE_URL at build time so share previews and the sitemap use the live domain.
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   resume: "/resume.pdf",
@@ -113,7 +114,7 @@ export const projects: Project[] = [
     shader: "liquid",
     image: "/projects/portfolio.webp",
     imageAlt: "Portfolio hero with a liquid metal shader behind the name Himil Prajapati",
-    links: [{ label: "Source", href: "https://github.com/Himil192/himil-portfolio" }],
+    links: [{ label: "Source", href: site.repo }],
   },
   {
     title: "TerraBloom",
@@ -153,18 +154,6 @@ export const otherProjects = [
       { label: "Source", href: "https://github.com/Himil192/ERP-College-management-system-using-Django" },
     ],
   },
-];
-
-// Approximate values per 100 g, for the lab's demo calculator only.
-export const sampleFoods = [
-  { name: "Cooked rice", protein: 2.7, carbs: 28, fat: 0.3 },
-  { name: "Cooked moong dal", protein: 7, carbs: 19, fat: 0.4 },
-  { name: "Paneer", protein: 18, carbs: 1.2, fat: 20 },
-  { name: "Boiled egg", protein: 13, carbs: 1.1, fat: 11 },
-  { name: "Cooked chicken breast", protein: 31, carbs: 0, fat: 3.6 },
-  { name: "Banana", protein: 1.1, carbs: 23, fat: 0.3 },
-  { name: "Oats", protein: 17, carbs: 66, fat: 7 },
-  { name: "Almonds", protein: 21, carbs: 22, fat: 49 },
 ];
 
 export const skills = [
@@ -212,4 +201,208 @@ export const achievements = [
   "1st team rank, Internal Hackathon 2022, SVMIT",
   "2nd team rank, Internal Hackathon 2023, SVMIT",
   "Hackathon volunteer for the Student Start-up and Innovation Policy (SSIP)",
+];
+
+// Every line of evidence comes from the resume or this repository.
+export const matchSkills = [
+  {
+    name: "React",
+    aliases: ["react", "react.js", "reactjs"],
+    evidence: "Built product interfaces at Cognihive and the Neonat Health application in React.",
+  },
+  {
+    name: "Next.js",
+    aliases: ["next.js", "nextjs", "next js"],
+    evidence: "Developed web applications at Cognihive and built this portfolio in Next.js.",
+  },
+  {
+    name: "JavaScript",
+    aliases: ["javascript", "js", "es6"],
+    evidence: "My core language across professional work and framework-free browser projects.",
+  },
+  {
+    name: "TypeScript",
+    aliases: ["typescript"],
+    evidence: "This portfolio is written in TypeScript, and its source is public.",
+  },
+  {
+    name: "HTML and CSS",
+    aliases: ["html", "html5", "css", "css3"],
+    evidence: "Used on every project, including a HackerRank CSS (Basic) certificate.",
+  },
+  {
+    name: "Tailwind CSS",
+    aliases: ["tailwind", "tailwindcss", "tailwind css"],
+    evidence: "Used to build TerraBloom and this portfolio.",
+  },
+  {
+    name: "Bootstrap",
+    aliases: ["bootstrap"],
+    evidence: "Part of my frontend toolkit alongside Tailwind CSS.",
+  },
+  {
+    name: "Vite",
+    aliases: ["vite"],
+    evidence: "TerraBloom is built with React and Vite.",
+  },
+  {
+    name: "Responsive design",
+    aliases: ["responsive", "mobile-first", "mobile first"],
+    evidence: "Built responsive web applications at Cognihive and a mobile-first TerraBloom.",
+  },
+  {
+    name: "REST APIs",
+    aliases: ["api", "apis", "rest api", "rest apis", "restful", "api integration"],
+    evidence: "Integrated 3+ REST APIs at Neonat Health and connected UI to backend APIs at Cognihive.",
+  },
+  {
+    name: "State management",
+    aliases: ["state management", "context api", "react hooks", "hooks"],
+    evidence: "Used React Hooks and Context, and improved load time through state management at Neonat Health.",
+  },
+  {
+    name: "Performance",
+    aliases: ["performance", "optimization", "optimisation", "web vitals"],
+    evidence: "Improved application performance at Cognihive and reduced page load time at Neonat Health.",
+  },
+  {
+    name: "Cross-browser support",
+    aliases: ["cross-browser", "cross browser", "browser compatibility"],
+    evidence: "Improved cross-browser compatibility at Cognihive.",
+  },
+  {
+    name: "Reusable components",
+    aliases: ["reusable components", "ui components", "component library", "design system"],
+    evidence: "Integrated reusable UI components with backend APIs at Cognihive.",
+  },
+  {
+    name: "Firebase",
+    aliases: ["firebase", "firestore"],
+    evidence: "Used Firebase Hosting, Authentication, and Firestore for TerraBloom.",
+  },
+  {
+    name: "CI/CD",
+    aliases: ["ci/cd", "cicd", "ci cd", "continuous integration", "continuous deployment"],
+    evidence: "Set up a Firebase Hosting CI/CD pipeline for TerraBloom, and GitHub Actions for this site.",
+  },
+  {
+    name: "Git and GitHub",
+    aliases: ["git", "github", "version control"],
+    evidence: "Used for all my projects, along with code reviews at Neonat Health.",
+  },
+  {
+    name: "Code reviews",
+    aliases: ["code review", "code reviews"],
+    evidence: "Took part in code reviews and testing with design and backend teams at Neonat Health.",
+  },
+  {
+    name: "Three.js and WebGL",
+    aliases: ["three.js", "threejs", "webgl", "glsl", "3d"],
+    evidence: "Wrote the Three.js scene and GLSL shaders on this site.",
+  },
+  {
+    name: "Web animation",
+    aliases: ["gsap", "animation", "animations"],
+    evidence: "Built the scroll animation on this site with GSAP.",
+  },
+  {
+    name: "Google Cloud",
+    aliases: ["google cloud", "gcp"],
+    evidence: "Earned Google Cloud Skills Boost badges.",
+  },
+  {
+    name: "SQL",
+    aliases: ["sql", "mysql"],
+    evidence: "Hold a HackerRank SQL (Basic) certificate and use MySQL Workbench.",
+  },
+  {
+    name: "WordPress",
+    aliases: ["wordpress"],
+    evidence: "Built a WordPress website for a client, Karolina Kobiałka.",
+  },
+  {
+    name: "Python",
+    aliases: ["python", "django"],
+    evidence: "Built a college management system with Django and Python.",
+  },
+];
+
+export const unfamiliarSkills = [
+  { name: "Angular", aliases: ["angular", "angularjs"] },
+  { name: "Vue", aliases: ["vue", "vue.js", "vuejs"] },
+  { name: "Svelte", aliases: ["svelte", "sveltekit"] },
+  { name: "Redux", aliases: ["redux"] },
+  { name: "GraphQL", aliases: ["graphql"] },
+  { name: "Node.js", aliases: ["node", "node.js", "nodejs"] },
+  { name: "Express", aliases: ["express", "express.js"] },
+  { name: "React Native", aliases: ["react native"] },
+  { name: "Flutter", aliases: ["flutter"] },
+  { name: "Docker", aliases: ["docker"] },
+  { name: "Kubernetes", aliases: ["kubernetes"] },
+  { name: "MongoDB", aliases: ["mongodb"] },
+  { name: "PostgreSQL", aliases: ["postgresql", "postgres"] },
+  { name: "Jest", aliases: ["jest"] },
+  { name: "Cypress", aliases: ["cypress"] },
+  { name: "Storybook", aliases: ["storybook"] },
+  { name: "Sass", aliases: ["sass", "scss"] },
+];
+
+export const sampleJob = `Frontend Developer
+
+We are looking for a developer to build responsive web applications with React and Next.js.
+
+You will write JavaScript and TypeScript, integrate REST APIs, build reusable UI components, and improve performance and cross-browser compatibility. You will use Git, take part in code reviews, and work with our CI/CD pipeline.
+
+Experience with Tailwind CSS is required. Experience with GraphQL and Jest is a plus.`;
+
+export const inspectSections = [
+  {
+    component: "Hero",
+    file: "src/components/hero/Hero.tsx",
+    rendering: "Server-rendered, with a lazy client shader",
+    why: "The text arrives as HTML straight away, while the WebGL shader loads separately so it never delays your first view.",
+    tools: ["Next.js", "GLSL", "React Three Fiber"],
+  },
+  {
+    component: "Experience",
+    file: "src/components/sections/Experience.tsx",
+    rendering: "Server component",
+    why: "This is plain content, so it adds no component JavaScript of its own, and the text stays in one data file.",
+    tools: ["Next.js", "Tailwind CSS", "GSAP"],
+  },
+  {
+    component: "Projects",
+    file: "src/components/sections/Projects.tsx",
+    rendering: "Server section with client cards",
+    why: "Each card starts its WebGL shader only on hover, because browsers limit how many can run at once.",
+    tools: ["React", "next/image", "GLSL"],
+  },
+  {
+    component: "Credentials",
+    file: "src/components/sections/Credentials.tsx",
+    rendering: "Server component",
+    why: "Skills, education, and certificates are rendered from data, so updating them never means touching the layout.",
+    tools: ["Next.js", "Semantic HTML"],
+  },
+  {
+    component: "ScrollSequence",
+    file: "src/components/sequence/ScrollSequence.tsx",
+    rendering: "Client component",
+    why: "Pre-rendered frames are drawn to a canvas as you scroll, and only load once you get near this section.",
+    tools: ["Three.js", "GSAP", "Canvas"],
+  },
+  {
+    component: "Playground",
+    file: "src/components/playground/JobMatch.tsx",
+    rendering: "Client component",
+    why: "Matching runs entirely in your browser with no server, so pasted job descriptions stay private.",
+    tools: ["React", "TypeScript"],
+  },
+  {
+    component: "Contact",
+    file: "src/components/sections/Contact.tsx",
+    rendering: "Server-rendered, with a lazy client shader",
+    why: "The contact links work as plain HTML, even if JavaScript or WebGL is unavailable.",
+    tools: ["Next.js", "GLSL"],
+  },
 ];

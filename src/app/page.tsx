@@ -7,6 +7,7 @@ import Nav from "@/components/sections/Nav";
 import Projects from "@/components/sections/Projects";
 import ScrollSequence from "@/components/sequence/ScrollSequence";
 import Cursor from "@/components/ui/Cursor";
+import Inspect from "@/components/ui/Inspect";
 import Motion from "@/components/ui/Motion";
 
 export default function Home() {
@@ -27,6 +28,7 @@ export default function Home() {
         <Playground />
       </main>
       <Contact />
+      <Inspect />
     </>
   );
 }
