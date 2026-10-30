@@ -2,7 +2,10 @@ import { achievements, certifications, education, skills } from "@/content/site"
 
 export default function Credentials() {
   return (
-    <section id="skills" className="shell py-28 md:py-44">
+    <section id="skills" className="shell relative overflow-x-clip py-28 md:py-44">
+      <span data-ghost aria-hidden className="ghost-word">
+        Skills
+      </span>
       <p className="eyebrow" data-reveal>
         Toolkit
       </p>

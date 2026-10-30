@@ -23,6 +23,8 @@
   --primary-hover-opacity: 1;
   --noise-opacity: 0.22;
   --cursor-display: block;
+  --ghost-display: none;
+  --ghost-dark-display: inline;
   --ambient-glow: rgb(201 168 106 / 0.22);
   --hairline: 14%;
   color-scheme: dark;
@@ -42,6 +44,8 @@
   --primary-hover-opacity: 0.82;
   --noise-opacity: 0;
   --cursor-display: none;
+  --ghost-display: block;
+  --ghost-dark-display: none;
   --ambient-glow: transparent;
   --hairline: 12%;
   color-scheme: light;
@@ -62,6 +66,10 @@
     --primary-hover-opacity: 0.82;
     --noise-opacity: 0;
     --cursor-display: none;
+    --ghost-display: block;
+    --ghost-dark-display: none;
+  --ghost-display: block;
+  --ghost-dark-display: none;
     --ambient-glow: transparent;
     --hairline: 12%;
     color-scheme: light;
@@ -322,6 +330,46 @@ body::after {
   padding: 0.75rem;
   color: color-mix(in srgb, var(--color-ink) 70%, transparent);
   font-size: 0.9rem;
+}
+
+.nav-logo {
+  position: relative;
+  display: inline-block;
+  min-height: 2rem;
+  white-space: nowrap;
+}
+
+.name-fly {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: 0.25em;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.name-fly > span {
+  display: inline-block;
+  transform-origin: 0 0;
+}
+
+.ghost-word {
+  display: var(--ghost-display);
+  position: absolute;
+  top: 3rem;
+  left: 0;
+  color: color-mix(in srgb, var(--color-ink) 5%, transparent);
+  font-family: var(--font-display);
+  font-size: clamp(7rem, 22vw, 24rem);
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.ghost-dark {
+  display: var(--ghost-dark-display);
 }
 
 .job-input {

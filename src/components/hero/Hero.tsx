@@ -8,13 +8,19 @@ export default function Hero() {
       <ShaderSurface name="liquid" light="contour" />
       <div className="absolute inset-0 bg-gradient-to-t from-canvas via-canvas/70 to-canvas/20" />
       <div className="shell relative pb-16 md:pb-24">
-        <p className="eyebrow">
+        <p className="eyebrow" data-hero-fade>
           {site.role} / {site.location} / {site.availability}
         </p>
         <h1 className="font-display mt-5 text-[17vw] leading-[0.92] md:text-[min(11.5vw,14rem)]">
-          Himil <span className="text-foil italic">Prajapati</span>
+          <span data-name-word>Himil</span>{" "}
+          <span data-name-word className="text-foil italic">
+            Prajapati
+          </span>
         </h1>
-        <div className="mt-8 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+        <div
+          data-hero-fade
+          className="mt-8 flex flex-col gap-8 md:flex-row md:items-end md:justify-between"
+        >
           <p className="max-w-lg text-lg text-ink/75">{site.intro}</p>
           <div className="flex flex-wrap gap-3">
             <MagneticButton href="#work" variant="foil">
@@ -25,7 +31,7 @@ export default function Hero() {
             </MagneticButton>
           </div>
         </div>
-        <dl className="mt-10 grid gap-5 border-t border-ink/10 pt-6 sm:grid-cols-3">
+        <dl data-hero-fade className="mt-10 grid gap-5 border-t border-ink/10 pt-6 sm:grid-cols-3">
           {site.facts.map((fact) => (
             <div key={fact.label}>
               <dt className="text-sm text-ink/70">{fact.label}</dt>

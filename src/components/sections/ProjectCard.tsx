@@ -22,13 +22,9 @@ export default function ProjectCard({ project }: { project: Project }) {
       />
       <div className="absolute inset-0 bg-gradient-to-t from-canvas via-canvas/85 to-canvas/40" />
       <div className="relative flex h-full flex-col">
-        <Image
-          src={project.image}
-          alt={project.imageAlt}
-          width={960}
-          height={600}
-          className="rounded-lg border border-ink/10 transition-transform duration-700 ease-out group-hover:-translate-y-1"
-        />
+        <div className="overflow-hidden rounded-lg border border-ink/10">
+          <Image src={project.image} alt={project.imageAlt} width={960} height={600} />
+        </div>
         <p className="eyebrow mt-6">{project.tag}</p>
         <h3 className="font-display mt-3 text-4xl">{project.title}</h3>
         <p className="mt-3 text-ink/70">{project.description}</p>

@@ -29,8 +29,15 @@ export default function Nav() {
   return (
     <header className="nav-bar fixed inset-x-0 top-0 z-40">
       <div className="shell relative flex items-center justify-between py-5">
-        <a href="#top" className="font-display text-2xl" aria-label="Back to top">
-          HP
+        <a href="#top" data-nav-logo className="nav-logo font-display text-2xl" aria-label="Back to top">
+          <span data-nav-hp>HP</span>
+          {/* Stays hidden unless motion is allowed; the real name remains in the hero heading. */}
+          <span data-name-fly aria-hidden className="name-fly">
+            <span data-fly-word>Himil</span>
+            <span data-fly-word className="text-foil italic">
+              Prajapati
+            </span>
+          </span>
         </a>
         <div className="hidden items-center gap-7 lg:flex">
           <nav aria-label="Primary" className="flex gap-7">

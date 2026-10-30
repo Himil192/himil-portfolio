@@ -3,7 +3,10 @@ import ProjectCard from "./ProjectCard";
 
 export default function Projects() {
   return (
-    <section id="work" className="shell py-28 md:py-44">
+    <section id="work" className="shell relative overflow-x-clip py-28 md:py-44">
+      <span data-ghost aria-hidden className="ghost-word">
+        Work
+      </span>
       <p className="eyebrow" data-reveal>
         Selected work
       </p>

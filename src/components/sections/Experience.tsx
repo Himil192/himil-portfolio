@@ -2,13 +2,16 @@ import { experience } from "@/content/site";
 
 export default function Experience() {
   return (
-    <section id="experience" className="shell relative py-28 md:py-44">
+    <section id="experience" className="shell relative overflow-x-clip py-28 md:py-44">
       <span
         data-parallax="-30"
         aria-hidden
-        className="font-display pointer-events-none absolute top-16 right-4 text-[24vw] leading-none text-ink/[0.04] select-none"
+        className="ghost-dark font-display pointer-events-none absolute top-16 right-4 text-[24vw] leading-none text-ink/[0.04] select-none"
       >
         Work
+      </span>
+      <span data-ghost aria-hidden className="ghost-word">
+        Experience
       </span>
       <p className="eyebrow" data-reveal>
         Experience
@@ -32,7 +35,7 @@ export default function Experience() {
               {job.points.map((point) => (
                 <li key={point} className="flex gap-3">
                   <span aria-hidden className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-accent" />
-                  {point}
+                  <span data-ink>{point}</span>
                 </li>
               ))}
             </ul>
