@@ -1,3 +1,5 @@
+import type { ShaderName } from "@/shaders";
+
 export const site = {
   name: "Himil Prajapati",
   role: "Frontend Developer",
@@ -75,33 +77,70 @@ export const experience = [
   },
 ];
 
-export const projects = [
+export type Project = {
+  title: string;
+  tag: string;
+  description: string;
+  built: string;
+  result?: string;
+  stack: string[];
+  shader: ShaderName;
+  image: string;
+  imageAlt: string;
+  links: { label: string; href: string }[];
+};
+
+export const projects: Project[] = [
+  {
+    title: "Cognihive",
+    tag: "Enterprise AI platform",
+    description: "A platform that orchestrates AI agents, workflows, and enterprise systems.",
+    built:
+      "Built the frontend features and interfaces in React and Next.js, connected reusable components to backend APIs, and improved performance and cross-browser compatibility.",
+    stack: ["React", "Next.js"],
+    shader: "cells",
+    image: "/projects/cognihive.webp",
+    imageAlt: "Cognihive home page with the headline Amplify Human Decision Making",
+    links: [],
+  },
+  {
+    title: "This portfolio",
+    tag: "Design and engineering",
+    description: "A fast, static site where the visuals are written in code.",
+    built:
+      "Wrote the GLSL shaders and Three.js scene, rendered the scene to WebP frames, and built staged frame loading with reduced-motion and Save-Data support.",
+    stack: ["Next.js", "TypeScript", "Three.js", "GSAP"],
+    shader: "liquid",
+    image: "/projects/portfolio.webp",
+    imageAlt: "Portfolio hero with a liquid metal shader behind the name Himil Prajapati",
+    links: [],
+  },
   {
     title: "TerraBloom",
     tag: "Sustainable living platform",
-    description:
-      "An eco-focused commerce and content platform with sustainability guides, product suggestions, and login, deployed through a Firebase Hosting CI/CD pipeline.",
+    description: "An eco-focused commerce and content platform with guides and product suggestions.",
+    built:
+      "Built the responsive React interface, added login with Firebase Authentication and Firestore, stored images on Cloudinary, and deployed through a Firebase Hosting CI/CD pipeline.",
     stack: ["React", "Vite", "Tailwind CSS", "Firebase", "Cloudinary"],
-    shader: "liquid",
+    shader: "contour",
+    image: "/projects/terrabloom.webp",
+    imageAlt: "TerraBloom home page with the headline Live Greener, Bloom Brighter",
     links: [
       { label: "Live site", href: "https://terrabloom-8dc91.web.app/" },
       { label: "Source", href: "https://github.com/Himil192/TerraBloom" },
     ],
   },
+];
+
+export const otherProjects = [
   {
     title: "Karolina Kobiałka",
-    tag: "Client website",
-    description: "A WordPress website and portfolio created for Karolina Kobiałka.",
-    stack: ["WordPress"],
-    shader: "silk",
+    note: "WordPress website and portfolio for a client",
     links: [{ label: "Live site", href: "https://karolinakobialka.pl/" }],
   },
   {
     title: "JavaScript DOM Projects",
-    tag: "Vanilla JS practice",
-    description: "A collection of browser projects built directly on the DOM, without a framework.",
-    stack: ["JavaScript", "HTML", "CSS"],
-    shader: "contour",
+    note: "Browser projects built without a framework",
     links: [
       { label: "Live demo", href: "https://stackblitz.com/edit/dom-project-chaiaurcode-zq1kdwzu" },
       { label: "Source", href: "https://github.com/Himil192/javascript-projects-DOM-" },
@@ -109,21 +148,20 @@ export const projects = [
   },
   {
     title: "College ERP",
-    tag: "Management system",
-    description: "A college management system built with Django.",
-    stack: ["Django", "Python"],
-    shader: "cells",
+    note: "College management system in Django and Python",
     links: [
       { label: "Source", href: "https://github.com/Himil192/ERP-College-management-system-using-Django" },
     ],
   },
-] as const;
+];
 
 export const skills = [
-  { group: "Languages", items: ["JavaScript", "HTML5", "CSS", "PHP", "Python", "C", "Java"] },
+  { group: "Languages", items: ["JavaScript", "TypeScript", "HTML5", "CSS", "GLSL"] },
   { group: "Frameworks", items: ["React.js", "Next.js", "Tailwind CSS", "Vite", "Bootstrap"] },
+  { group: "Motion and 3D", items: ["Three.js", "React Three Fiber", "GSAP"] },
   { group: "Cloud", items: ["Firebase", "AWS", "Google Cloud"] },
   { group: "Tools", items: ["GitHub", "CI/CD", "WordPress", "MySQL Workbench", "VS Code"] },
+  { group: "Also familiar", items: ["PHP", "Python", "C", "Java"] },
 ];
 
 export const education = {
