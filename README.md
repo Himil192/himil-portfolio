@@ -1,6 +1,14 @@
 # Himil Prajapati | Portfolio
 
+[![CI](https://github.com/Himil192/himil-portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/Himil192/himil-portfolio/actions/workflows/ci.yml)
+
 Personal portfolio of Himil Prajapati, a frontend developer working with React and Next.js.
+
+Live site: https://himil-portfolio.vercel.app
+
+## Deployment
+
+Every push and pull request to `main` runs lint, type checks, a production build, and a dependency audit in GitHub Actions. Vercel deploys `main` to production and creates a preview link for each branch.
 
 ## Stack
 
