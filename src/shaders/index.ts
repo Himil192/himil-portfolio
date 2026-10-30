@@ -6,17 +6,7 @@ export const vertex = /* glsl */ `
   }
 `;
 
-const common = /* glsl */ `
-  uniform float uTime;
-  uniform vec2 uResolution;
-  uniform vec2 uPointer;
-  uniform float uPresence;
-  varying vec2 vUv;
-
-  uniform vec3 uCanvas;
-  uniform vec3 uAccent;
-  uniform vec3 uHighlight;
-
+const noiseChunk = /* glsl */ `
   float hash(vec2 p) {
     p = fract(p * vec2(123.34, 456.21));
     p += dot(p, p + 45.32);
@@ -33,6 +23,47 @@ const common = /* glsl */ `
       u.y
     );
   }
+`;
+
+const liquidField = /* glsl */ `
+  float liquidHeight(vec2 p, float time, vec2 hand, float presence) {
+    float t = time * 0.07;
+    vec2 q = vec2(noise(p + t), noise(p + vec2(5.2, 1.3) - t));
+    float swell = exp(-dot(p - hand * 0.5, p - hand * 0.5) * 7.0) * presence;
+    return noise(p * 1.3 + 1.6 * q) + 0.22 * noise(p * 2.6 - q) + swell * 0.3;
+  }
+
+  float liquidBand(vec2 p, float time, vec2 hand, float presence) {
+    float e = 0.02;
+    float h = liquidHeight(p, time, hand, presence);
+    vec3 n = normalize(vec3(
+      liquidHeight(p + vec2(e, 0.0), time, hand, presence) - h,
+      liquidHeight(p + vec2(0.0, e), time, hand, presence) - h,
+      e * 1.1
+    ));
+    vec3 r = reflect(vec3(0.0, 0.0, -1.0), n);
+    return pow(0.5 + 0.5 * sin(r.x * 3.0 + r.y * 2.0 + h * 3.0), 4.0);
+  }
+`;
+
+// Shared with the theme change, so its mask has exactly the hero's shapes.
+export const liquidPattern = noiseChunk + liquidField;
+
+// One running time for the hero and the theme change, so their liquid stays in step.
+export const liquidClock = { time: 8 };
+
+const common = /* glsl */ `
+  uniform float uTime;
+  uniform vec2 uResolution;
+  uniform vec2 uPointer;
+  uniform float uPresence;
+  varying vec2 vUv;
+
+  uniform vec3 uCanvas;
+  uniform vec3 uAccent;
+  uniform vec3 uHighlight;
+
+  ${noiseChunk}
 
   float fbm(vec2 p) {
     float value = 0.0;
@@ -56,21 +87,10 @@ const common = /* glsl */ `
 
 const liquid = /* glsl */ `
   ${common}
-
-  float height(vec2 p) {
-    float t = uTime * 0.07;
-    vec2 q = vec2(noise(p + t), noise(p + vec2(5.2, 1.3) - t));
-    float swell = exp(-dot(p - pointer() * 0.5, p - pointer() * 0.5) * 7.0) * uPresence;
-    return noise(p * 1.3 + 1.6 * q) + 0.22 * noise(p * 2.6 - q) + swell * 0.3;
-  }
+  ${liquidField}
 
   void main() {
-    vec2 p = centered() * 0.5;
-    float e = 0.02;
-    float h = height(p);
-    vec3 n = normalize(vec3(height(p + vec2(e, 0.0)) - h, height(p + vec2(0.0, e)) - h, e * 1.1));
-    vec3 r = reflect(vec3(0.0, 0.0, -1.0), n);
-    float band = pow(0.5 + 0.5 * sin(r.x * 3.0 + r.y * 2.0 + h * 3.0), 4.0);
+    float band = liquidBand(centered() * 0.5, uTime, pointer(), uPresence);
     vec3 color = mix(uCanvas, uAccent * 0.62, band);
     color += uHighlight * pow(band, 12.0) * 0.4;
     gl_FragColor = vec4(color, 1.0);

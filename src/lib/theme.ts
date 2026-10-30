@@ -73,6 +73,7 @@ export function changeTheme(choice: ThemeChoice) {
   pouring = choice;
   notify();
   const started = pourGold(
+    resolve(choice),
     () => setThemeChoice(pouring ?? choice),
     () => {
       const last = pouring;

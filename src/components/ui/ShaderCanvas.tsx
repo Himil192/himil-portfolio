@@ -4,7 +4,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Component, ReactNode, useEffect, useMemo, useRef } from "react";
 import { ShaderMaterial, Vector2, Vector3 } from "three";
 import { ResolvedTheme } from "@/lib/theme";
-import { palettes, ShaderName, shaders, vertex } from "@/shaders";
+import { liquidClock, palettes, ShaderName, shaders, vertex } from "@/shaders";
 
 function Surface({ name, theme, still }: { name: ShaderName; theme: ResolvedTheme; still: boolean }) {
   const material = useRef<ShaderMaterial>(null);
@@ -12,7 +12,7 @@ function Surface({ name, theme, still }: { name: ShaderName; theme: ResolvedThem
   const invalidate = useThree((state) => state.invalidate);
   const uniforms = useMemo(
     () => ({
-      uTime: { value: 8 },
+      uTime: { value: name === "liquid" ? liquidClock.time : 8 },
       uResolution: { value: new Vector2(1, 1) },
       uPointer: { value: new Vector2(0, 0) },
       uPresence: { value: 0 },
@@ -20,7 +20,7 @@ function Surface({ name, theme, still }: { name: ShaderName; theme: ResolvedThem
       uAccent: { value: new Vector3() },
       uHighlight: { value: new Vector3() },
     }),
-    [],
+    [name],
   );
   const target = useRef({ x: 0, y: 0, presence: 0 });
 
@@ -50,6 +50,7 @@ function Surface({ name, theme, still }: { name: ShaderName; theme: ResolvedThem
     uResolution.value.set(state.size.width, state.size.height);
     if (still) return;
     uTime.value += delta * palettes[theme].speed;
+    if (name === "liquid") liquidClock.time = uTime.value;
     uPointer.value.lerp(target.current, 0.08);
     uPresence.value += (target.current.presence - uPresence.value) * 0.06;
   });

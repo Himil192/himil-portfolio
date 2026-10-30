@@ -1,11 +1,12 @@
-// A temporary full-screen pour of molten gold, drawn with raw WebGL so the theme
-// switch does not need to load Three.js.
+import { liquidClock, liquidPattern } from "@/shaders";
+import type { ResolvedTheme } from "./theme";
 
-const RISE_MS = 650;
-const HOLD_MS = 110;
-const DRAIN_MS = 740;
-const LEVEL_EMPTY = -0.2;
-const LEVEL_FULL = 1.25;
+// The theme change grows out of the dark hero's liquid: a temporary full-screen canvas
+// uses that same pattern as an animated mask, so the two themes meet along its curves.
+
+const SPREAD_MS = 1150;
+const HOLD_MS = 120;
+const FADE_MS = 420;
 
 const vertex = /* glsl */ `
   attribute vec2 aPosition;
@@ -18,68 +19,38 @@ const vertex = /* glsl */ `
 
 const fragment = /* glsl */ `
   precision highp float;
-  uniform float uLevel;
+  uniform float uProgress;
+  uniform float uFade;
   uniform float uTime;
+  uniform float uToDark;
   uniform vec2 uResolution;
   varying vec2 vUv;
 
-  float hash(vec2 p) {
-    p = fract(p * vec2(123.34, 456.21));
-    p += dot(p, p + 45.32);
-    return fract(p.x * p.y);
-  }
+  const vec3 OBSIDIAN = vec3(0.039, 0.039, 0.043);
+  const vec3 GOLD = vec3(0.788, 0.659, 0.416);
+  const vec3 IVORY = vec3(0.957, 0.937, 0.902);
+  const vec3 PAPER = vec3(0.984, 0.98, 0.973);
 
-  float noise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    vec2 u = f * f * (3.0 - 2.0 * f);
-    return mix(
-      mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
-      mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
-      u.y
-    );
-  }
-
-  // Layered sine folds, warped into each other, so forms stay smooth with no noise grid.
-  float height(vec2 p) {
-    float t = uTime * 0.45;
-    vec2 q = p + 0.32 * vec2(sin(p.y * 1.7 + t), cos(p.x * 1.4 - t * 0.8));
-    float folds = sin(q.x * 2.1 + t) + 0.8 * sin(q.y * 2.6 - t * 0.7);
-    folds += 0.45 * sin((q.x + q.y) * 3.4 + t * 0.6);
-    return folds * 0.32;
-  }
-
-  vec3 metal(float v) {
-    vec3 color = mix(vec3(0.16, 0.09, 0.03), vec3(0.62, 0.42, 0.15), smoothstep(0.0, 0.45, v));
-    color = mix(color, vec3(0.9, 0.7, 0.34), smoothstep(0.42, 0.82, v));
-    return mix(color, vec3(1.0, 0.93, 0.74), smoothstep(0.88, 1.0, v));
-  }
+  ${liquidPattern}
 
   void main() {
-    vec2 p = vUv * uResolution / min(uResolution.x, uResolution.y);
-    float surface = uLevel
-      + sin(p.x * 3.0 + uTime * 2.2) * 0.035
-      + sin(p.x * 7.0 - uTime * 3.0) * 0.016
-      + (noise(vec2(p.x * 2.5, uTime * 0.9)) - 0.5) * 0.09;
-    float depth = surface - vUv.y;
-    float alpha = smoothstep(0.0, 0.0035, depth);
-    if (alpha <= 0.0) discard;
+    vec2 p = (vUv * 2.0 - 1.0) * uResolution / min(uResolution.x, uResolution.y) * 0.5;
+    vec2 none = vec2(0.0);
+    float band = liquidBand(p, uTime, none, 0.0);
+    float h = liquidHeight(p, uTime, none, 0.0);
 
-    float e = 0.02;
-    float h = height(p);
-    vec3 normal = vec3(height(p + vec2(e, 0.0)) - h, height(p + vec2(0.0, e)) - h, e * 1.6);
-    // The leading edge rolls over like a heavy liquid held by surface tension.
-    float lip = exp(-depth * 22.0);
-    normal.y += lip * 0.05;
-    normal = normalize(normal);
+    // The bright lines are reached first, then the theme spreads outward along the liquid.
+    float reach = 1.0 - (pow(band, 0.32) * 0.72 + clamp(h * 0.5, 0.0, 1.0) * 0.28);
+    float edge = uProgress * 1.3 - 0.15;
+    float filled = 1.0 - smoothstep(edge - 0.05, edge, reach);
+    float rim = (1.0 - smoothstep(0.0, 0.075, abs(reach - edge))) * step(uProgress, 0.995);
 
-    vec3 reflected = reflect(vec3(0.0, 0.0, -1.0), normal);
-    float sky = 0.5 + 0.5 * sin(reflected.y * 2.6 + reflected.x * 1.5 + 0.8);
-    vec3 color = metal(sky);
-    float glint = pow(max(dot(normal, normalize(vec3(0.35, 0.55, 0.76))), 0.0), 36.0);
-    color += vec3(1.0, 0.94, 0.8) * glint * 0.55;
-    color += vec3(1.0, 0.88, 0.62) * lip * 0.28;
-    gl_FragColor = vec4(color, alpha);
+    vec3 dark = mix(OBSIDIAN, GOLD * 0.62, band) + IVORY * pow(band, 12.0) * 0.4;
+    vec3 color = mix(PAPER, dark, uToDark);
+    color = mix(color, GOLD, rim);
+    color += vec3(1.0, 0.93, 0.76) * rim * rim * rim * 0.55;
+
+    gl_FragColor = vec4(color, max(filled, rim) * uFade);
   }
 `;
 
@@ -94,7 +65,7 @@ function compile(gl: WebGLRenderingContext, type: number, source: string) {
 }
 
 // Returns false when WebGL is unavailable, so the caller can change theme instantly.
-export function pourGold(onCovered: () => void, onDone: () => void) {
+export function pourGold(target: ResolvedTheme, onCovered: () => void, onDone: () => void) {
   const canvas = document.createElement("canvas");
   const gl = canvas.getContext("webgl", { alpha: true, antialias: false, premultipliedAlpha: false });
   if (!gl) return false;
@@ -118,38 +89,39 @@ export function pourGold(onCovered: () => void, onDone: () => void) {
   document.body.append(canvas);
 
   gl.viewport(0, 0, canvas.width, canvas.height);
-  gl.enable(gl.BLEND);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   const position = gl.getAttribLocation(program, "aPosition");
   gl.enableVertexAttribArray(position);
   gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
   gl.uniform2f(gl.getUniformLocation(program, "uResolution"), canvas.width, canvas.height);
-  const level = gl.getUniformLocation(program, "uLevel");
+  gl.uniform1f(gl.getUniformLocation(program, "uToDark"), target === "dark" ? 1 : 0);
+  const progress = gl.getUniformLocation(program, "uProgress");
+  const fade = gl.getUniformLocation(program, "uFade");
   const time = gl.getUniformLocation(program, "uTime");
 
   const start = performance.now();
+  const clockStart = liquidClock.time;
   let covered = false;
 
   const draw = (now: number) => {
     const elapsed = now - start;
-    let fill = 1;
-    if (elapsed < RISE_MS) fill = ease(elapsed / RISE_MS);
-    else if (elapsed > RISE_MS + HOLD_MS) fill = 1 - ease((elapsed - RISE_MS - HOLD_MS) / DRAIN_MS);
+    // Keeps the hero in step, so its liquid matches this one when the canvas fades away.
+    liquidClock.time = clockStart + elapsed / 1000;
 
-    if (!covered && elapsed >= RISE_MS) {
+    if (!covered && elapsed >= SPREAD_MS) {
       covered = true;
       onCovered();
     }
 
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.uniform1f(level, LEVEL_EMPTY + (LEVEL_FULL - LEVEL_EMPTY) * fill);
-    gl.uniform1f(time, elapsed / 1000);
+    gl.uniform1f(progress, ease(Math.min(elapsed / SPREAD_MS, 1)));
+    gl.uniform1f(fade, 1 - Math.max(0, Math.min((elapsed - SPREAD_MS - HOLD_MS) / FADE_MS, 1)));
+    gl.uniform1f(time, liquidClock.time);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 
-    if (elapsed < RISE_MS + HOLD_MS + DRAIN_MS) {
+    if (elapsed < SPREAD_MS + HOLD_MS + FADE_MS) {
       requestAnimationFrame(draw);
       return;
     }
