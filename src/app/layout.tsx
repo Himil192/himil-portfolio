@@ -36,6 +36,13 @@ const person = {
   sameAs: site.socials.map((social) => social.href),
 };
 
+const website = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: site.name,
+  url: site.url,
+};
+
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#fbfaf8" },
@@ -52,7 +59,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(person).replace(/</g, "\\u003c") }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify([website, person]).replace(/</g, "\\u003c") }}
         />
         {children}
       </body>

@@ -29,7 +29,7 @@ export default function ProjectCard({ project }: { project: Project }) {
         <h3 className="font-display mt-3 text-4xl">{project.title}</h3>
         <p className="mt-3 text-ink/70">{project.description}</p>
         <p className="mt-3 text-ink/70">{project.built}</p>
-        {project.result && <p className="mt-3">{project.result}</p>}
+        {project.result && <p className="mt-3 font-semibold text-accent">{project.result}</p>}
         <ul className="mt-5 flex flex-wrap gap-2">
           {project.stack.map((item) => (
             <li key={item} className="chip">

@@ -69,7 +69,7 @@ export const experience = [
     period: "Aug 2025 – Jun 2026",
     points: [
       "Developed and maintained responsive web applications using React.js and Next.js",
-      "Built frontend features and user interfaces",
+      "Built the company's public 7-section landing page and other frontend features",
       "Improved application performance and cross-browser compatibility",
       "Integrated reusable UI components with backend APIs",
     ],
@@ -105,7 +105,7 @@ export const projects: Project[] = [
     title: "Cognihive landing page",
     tag: "Company website",
     description: "The public landing page for Cognihive, an enterprise AI company.",
-    built: "Built the landing page, including its responsive layout, in React and Next.js.",
+    built: "Built the 7-section public landing page, including its responsive layout, in React and Next.js.",
     stack: ["React", "Next.js"],
     shader: "cells",
     image: "/projects/cognihive.webp",
@@ -127,9 +127,10 @@ export const projects: Project[] = [
   {
     title: "TerraBloom",
     tag: "Sustainable living platform",
-    description: "An eco-focused commerce and content platform with guides and product suggestions.",
+    description: "An eco-focused online store and blog with customer and admin dashboards.",
     built:
-      "Built the responsive React interface, added login with Firebase Authentication and Firestore, stored images on Cloudinary, and deployed through a Firebase Hosting CI/CD pipeline.",
+      "Built the shop, cart, checkout, wishlist, blog, and order management in React, with login and data on Firebase and deployment through a CI/CD pipeline.",
+    result: "29 pages, 38 components, and 129 commits.",
     stack: ["React", "Vite", "Tailwind CSS", "Firebase", "Cloudinary"],
     shader: "contour",
     image: "/projects/terrabloom.webp",
