@@ -1,0 +1,8 @@
+node_modules/
+.next/
+out/
+.frame-preview/
+next-env.d.ts
+*.tsbuildinfo
+.vscode/
+Himil-Prajapati CV GE.pdf
