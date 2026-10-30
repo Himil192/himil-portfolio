@@ -1,3 +1,5 @@
+import { pourGold } from "./liquidGold";
+
 // Theme state lives outside React so the nav switch, command menu, and shaders share one source.
 
 export const THEME_CHOICES = ["system", "light", "dark"] as const;
@@ -40,31 +42,49 @@ export function setThemeChoice(choice: ThemeChoice) {
     const device = meta.media.includes("light") ? "light" : "dark";
     meta.content = COLORS[choice === "system" ? device : choice];
   });
-  listeners.forEach((listener) => listener());
+  notify();
 }
 
-// The gold sweep is for a visitor's own choice; device changes in System mode stay instant.
-export function changeTheme(choice: ThemeChoice) {
-  const before = getResolvedTheme();
-  const instant =
-    !document.startViewTransition ||
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const resolve = (choice: ThemeChoice): ResolvedTheme =>
+  choice === "system" ? (window.matchMedia(LIGHT_QUERY).matches ? "light" : "dark") : choice;
 
-  if (instant) {
+// The pour is for a visitor's own choice; device changes in System mode stay instant.
+let pouring: ThemeChoice | undefined;
+
+// The switch shows the target straight away, even while gold still covers the old theme.
+export const getDisplayedChoice = () => pouring ?? getThemeChoice();
+
+const notify = () => listeners.forEach((listener) => listener());
+
+export function changeTheme(choice: ThemeChoice) {
+  // A click during a pour only updates where it ends.
+  if (pouring) {
+    pouring = choice;
+    notify();
+    return;
+  }
+
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced || resolve(choice) === getResolvedTheme()) {
     setThemeChoice(choice);
     return;
   }
 
-  // Two sweeps cannot share a transition name, so a quick second click replaces the first.
-  document.querySelector(".theme-sweep")?.remove();
-  const sweep = document.createElement("div");
-  sweep.className = "theme-sweep";
-
-  const transition = document.startViewTransition(() => {
+  pouring = choice;
+  notify();
+  const started = pourGold(
+    () => setThemeChoice(pouring ?? choice),
+    () => {
+      const last = pouring;
+      pouring = undefined;
+      if (last && last !== getThemeChoice()) setThemeChoice(last);
+      else notify();
+    },
+  );
+  if (!started) {
+    pouring = undefined;
     setThemeChoice(choice);
-    if (getResolvedTheme() !== before) document.body.append(sweep);
-  });
-  transition.finished.finally(() => sweep.remove());
+  }
 }
 
 export function subscribeTheme(listener: () => void) {
