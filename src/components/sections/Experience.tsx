@@ -3,13 +3,6 @@ import { experience } from "@/content/site";
 export default function Experience() {
   return (
     <section id="experience" className="shell relative overflow-x-clip py-28 md:py-44">
-      <span
-        data-parallax="-30"
-        aria-hidden
-        className="ghost-dark font-display pointer-events-none absolute top-16 right-4 text-[24vw] leading-none text-ink/[0.04] select-none"
-      >
-        Work
-      </span>
       <span data-ghost aria-hidden className="ghost-word">
         Experience
       </span>

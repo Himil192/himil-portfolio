@@ -5,7 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import Lenis from "lenis";
 import { useEffect } from "react";
-import { useReducedMotion, useResolvedTheme } from "@/lib/hooks";
+import { useReducedMotion } from "@/lib/hooks";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 ScrollTrigger.config({ ignoreMobileResize: true });
@@ -74,11 +74,31 @@ function flyName() {
   });
 }
 
-// Light mode's motion is all tied to the scrollbar, so everything reverses when scrolling back.
-function lightMotion() {
+// All motion is tied to the scrollbar, so everything reverses when scrolling back.
+function scrollMotion() {
+  const reveals = "[data-reveal]:not(.section-title):not(#work article):not(#skills dl > div)";
+  gsap.utils.toArray<HTMLElement>(reveals).forEach((element) => {
+    gsap.fromTo(
+      element,
+      { y: 56, autoAlpha: 0 },
+      {
+        y: 0,
+        autoAlpha: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: element,
+          start: "clamp(top 95%)",
+          end: "clamp(top 62%)",
+          scrub: 0.6,
+        },
+      },
+    );
+  });
+
   gsap.utils.toArray<HTMLElement>(".section-title").forEach((title) => {
     SplitText.create(title, {
       type: "words",
+      wordsClass: "split-word",
       autoSplit: true,
       onSplit: ({ words }) =>
         gsap.fromTo(
@@ -201,7 +221,6 @@ function lightMotion() {
 // Owns page-wide scroll behaviour: smooth scrolling, reveals, and parallax.
 export default function Motion() {
   const reduced = useReducedMotion();
-  const theme = useResolvedTheme();
 
   useEffect(() => {
     if (reduced) return;
@@ -223,65 +242,24 @@ export default function Motion() {
 
     let cancelled = false;
     let context: gsap.Context | undefined;
-    let stopLight: (() => void) | undefined;
+    let stopMotion: (() => void) | undefined;
 
     // Waits for fonts, because split lines and the flying name are measured from real text.
     document.fonts.ready.then(() => {
       if (cancelled) return;
       context = gsap.context(() => {
-        const light = theme === "light";
-        const reveals = light
-          ? "[data-reveal]:not(.section-title):not(#work article):not(#skills dl > div)"
-          : "[data-reveal]";
-
-        gsap.utils.toArray<HTMLElement>(reveals).forEach((element) => {
-          if (light) {
-            gsap.fromTo(
-              element,
-              { y: 56, autoAlpha: 0 },
-              {
-                y: 0,
-                autoAlpha: 1,
-                ease: "none",
-                scrollTrigger: {
-                  trigger: element,
-                  start: "clamp(top 95%)",
-                  end: "clamp(top 62%)",
-                  scrub: 0.6,
-                },
-              },
-            );
-            return;
-          }
-          gsap.from(element, {
-            y: 44,
-            autoAlpha: 0,
-            duration: 1.1,
-            ease: "power3.out",
-            scrollTrigger: { trigger: element, start: "top 88%", once: true },
-          });
-        });
-
-        gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((element) => {
-          gsap.to(element, {
-            yPercent: Number(element.dataset.parallax),
-            ease: "none",
-            scrollTrigger: { trigger: element, start: "top bottom", end: "bottom top", scrub: true },
-          });
-        });
-
         flyName();
-        if (light) stopLight = lightMotion();
+        stopMotion = scrollMotion();
       });
       ScrollTrigger.refresh();
     });
 
     return () => {
       cancelled = true;
-      stopLight?.();
+      stopMotion?.();
       context?.revert();
     };
-  }, [reduced, theme]);
+  }, [reduced]);
 
   return null;
 }

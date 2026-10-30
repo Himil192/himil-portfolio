@@ -23,8 +23,6 @@
   --primary-hover-opacity: 1;
   --noise-opacity: 0.22;
   --cursor-display: block;
-  --ghost-display: none;
-  --ghost-dark-display: inline;
   --ambient-glow: rgb(201 168 106 / 0.22);
   --hairline: 14%;
   color-scheme: dark;
@@ -44,8 +42,6 @@
   --primary-hover-opacity: 0.82;
   --noise-opacity: 0;
   --cursor-display: none;
-  --ghost-display: block;
-  --ghost-dark-display: none;
   --ambient-glow: transparent;
   --hairline: 12%;
   color-scheme: light;
@@ -66,10 +62,6 @@
     --primary-hover-opacity: 0.82;
     --noise-opacity: 0;
     --cursor-display: none;
-    --ghost-display: block;
-    --ghost-dark-display: none;
-  --ghost-display: block;
-  --ghost-dark-display: none;
     --ambient-glow: transparent;
     --hairline: 12%;
     color-scheme: light;
@@ -139,6 +131,21 @@ body::after {
 }
 
 .text-foil {
+  padding-right: 0.08em;
+  color: var(--foil-color);
+  background: var(--foil-text);
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: var(--foil-motion);
+}
+
+/* Moved words leave the parent's clipped gradient, so each carries its own foil. */
+.text-foil:has(.split-word) {
+  background: none;
+  animation: none;
+}
+
+.text-foil .split-word {
   padding-right: 0.08em;
   color: var(--foil-color);
   background: var(--foil-text);
@@ -355,7 +362,6 @@ body::after {
 }
 
 .ghost-word {
-  display: var(--ghost-display);
   position: absolute;
   top: 3rem;
   left: 0;
@@ -366,10 +372,6 @@ body::after {
   white-space: nowrap;
   pointer-events: none;
   user-select: none;
-}
-
-.ghost-dark {
-  display: var(--ghost-dark-display);
 }
 
 .job-input {
