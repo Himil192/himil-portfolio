@@ -52,6 +52,9 @@ export const liquidPattern = noiseChunk + liquidField;
 // One running time for the hero and the theme change, so their liquid stays in step.
 export const liquidClock = { time: 8 };
 
+// Page shaders stop drawing during a theme change, so they never compete with it.
+export const SHADER_PAUSE = "shader-pause";
+
 const common = /* glsl */ `
   uniform float uTime;
   uniform vec2 uResolution;

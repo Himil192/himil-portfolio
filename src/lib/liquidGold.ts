@@ -1,12 +1,15 @@
-import { liquidClock, liquidPattern } from "@/shaders";
+import { liquidClock, liquidPattern, SHADER_PAUSE } from "@/shaders";
 import type { ResolvedTheme } from "./theme";
 
 // The theme change grows out of the dark hero's liquid: a temporary full-screen canvas
 // uses that same pattern as an animated mask, so the two themes meet along its curves.
+// It is prepared once and reused, because compiling on a click makes the page stall.
 
 const SPREAD_MS = 1450;
 const HOLD_MS = 120;
 const FADE_MS = 420;
+const SETTLE_FRAMES = 3;
+const RENDER_SCALE = 0.6;
 
 const vertex = /* glsl */ `
   attribute vec2 aPosition;
@@ -44,8 +47,15 @@ const fragment = /* glsl */ `
   void main() {
     vec2 p = (vUv * 2.0 - 1.0) * uResolution / min(uResolution.x, uResolution.y) * 0.5;
     vec2 none = vec2(0.0);
-    float band = liquidBand(p, uTime, none, 0.0);
+    float e = 0.02;
     float h = liquidHeight(p, uTime, none, 0.0);
+    float slopeX = liquidHeight(p + vec2(e, 0.0), uTime, none, 0.0) - h;
+    float slopeY = liquidHeight(p + vec2(0.0, e), uTime, none, 0.0) - h;
+
+    // The hero's own band, calculated from the surface above so it is only measured once.
+    vec3 bandNormal = normalize(vec3(slopeX, slopeY, e * 1.1));
+    vec3 bandRay = reflect(vec3(0.0, 0.0, -1.0), bandNormal);
+    float band = pow(0.5 + 0.5 * sin(bandRay.x * 3.0 + bandRay.y * 2.0 + h * 3.0), 4.0);
 
     // Travels outward from the click, with the liquid's curves bending the front.
     float liquid = 1.0 - (pow(band, 0.32) * 0.72 + clamp(h * 0.5, 0.0, 1.0) * 0.28);
@@ -58,12 +68,7 @@ const fragment = /* glsl */ `
     float rim = smoothstep(-0.004, 0.006, behind) * (1.0 - smoothstep(width * 0.7, width * 1.5, behind));
 
     // The molten band: its surface rolls over the front, lit like the hero's metal.
-    float e = 0.02;
-    vec3 normal = vec3(
-      liquidHeight(p + vec2(e, 0.0), uTime, none, 0.0) - h,
-      liquidHeight(p + vec2(0.0, e), uTime, none, 0.0) - h,
-      e * 1.2
-    );
+    vec3 normal = vec3(slopeX, slopeY, e * 1.2);
     normal.xy += normalize(away + 0.0001) * (0.5 - behind / (width * 1.5)) * 0.05;
     normal = normalize(normal);
     vec3 reflected = reflect(vec3(0.0, 0.0, -1.0), normal);
@@ -101,6 +106,62 @@ function compile(gl: WebGLRenderingContext, type: number, source: string) {
   return gl.getShaderParameter(shader, gl.COMPILE_STATUS) ? shader : null;
 }
 
+type Pour = ReturnType<typeof build>;
+
+function build() {
+  const canvas = document.createElement("canvas");
+  const gl = canvas.getContext("webgl", { alpha: true, antialias: false, premultipliedAlpha: false });
+  if (!gl) return null;
+
+  const vertexShader = compile(gl, gl.VERTEX_SHADER, vertex);
+  const fragmentShader = compile(gl, gl.FRAGMENT_SHADER, fragment);
+  const program = gl.createProgram();
+  if (!vertexShader || !fragmentShader || !program) return null;
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return null;
+  gl.useProgram(program);
+
+  canvas.className = "liquid-gold";
+  canvas.setAttribute("aria-hidden", "true");
+  canvas.style.cssText = "position:fixed;inset:0;z-index:100;width:100%;height:100%;pointer-events:none";
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const position = gl.getAttribLocation(program, "aPosition");
+  gl.enableVertexAttribArray(position);
+  gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+  const uniform = (name: string) => gl.getUniformLocation(program, name);
+  const uniforms = {
+    resolution: uniform("uResolution"),
+    toDark: uniform("uToDark"),
+    origin: uniform("uOrigin"),
+    reach: uniform("uReach"),
+    progress: uniform("uProgress"),
+    fade: uniform("uFade"),
+    time: uniform("uTime"),
+  };
+
+  // Drivers often finish compiling on first use, so that cost is paid here rather than on a click.
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  return { canvas, gl, uniforms };
+}
+
+let prepared: Pour = null;
+
+const ready = () => {
+  if (!prepared || prepared.gl.isContextLost()) prepared = build();
+  return prepared;
+};
+
+// Run in idle time, so the first click has no setup to wait for.
+export const prepareGold = () => void ready();
+
+const pauseShaders = (paused: boolean) =>
+  window.dispatchEvent(new CustomEvent(SHADER_PAUSE, { detail: paused }));
+
 // Returns false when WebGL is unavailable, so the caller can change theme instantly.
 export function pourGold(
   target: ResolvedTheme,
@@ -108,36 +169,18 @@ export function pourGold(
   onCovered: () => void,
   onDone: () => void,
 ) {
-  const canvas = document.createElement("canvas");
-  const gl = canvas.getContext("webgl", { alpha: true, antialias: false, premultipliedAlpha: false });
-  if (!gl) return false;
+  const pour = ready();
+  if (!pour) return false;
+  const { canvas, gl, uniforms } = pour;
 
-  const vertexShader = compile(gl, gl.VERTEX_SHADER, vertex);
-  const fragmentShader = compile(gl, gl.FRAGMENT_SHADER, fragment);
-  const program = gl.createProgram();
-  if (!vertexShader || !fragmentShader || !program) return false;
-  gl.attachShader(program, vertexShader);
-  gl.attachShader(program, fragmentShader);
-  gl.linkProgram(program);
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return false;
-  gl.useProgram(program);
-
-  const dpr = Math.min(window.devicePixelRatio, 1.5);
-  canvas.width = Math.round(window.innerWidth * dpr);
-  canvas.height = Math.round(window.innerHeight * dpr);
-  canvas.className = "liquid-gold";
-  canvas.setAttribute("aria-hidden", "true");
-  canvas.style.cssText = "position:fixed;inset:0;z-index:100;width:100%;height:100%;pointer-events:none";
-  document.body.append(canvas);
-
+  // Liquid is soft, so it upscales well and frees the graphics card to hold its frame rate.
+  const scale = Math.min(window.devicePixelRatio, 1.5) * RENDER_SCALE;
+  canvas.width = Math.round(window.innerWidth * scale);
+  canvas.height = Math.round(window.innerHeight * scale);
   gl.viewport(0, 0, canvas.width, canvas.height);
-  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-  const position = gl.getAttribLocation(program, "aPosition");
-  gl.enableVertexAttribArray(position);
-  gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-  gl.uniform2f(gl.getUniformLocation(program, "uResolution"), canvas.width, canvas.height);
-  gl.uniform1f(gl.getUniformLocation(program, "uToDark"), target === "dark" ? 1 : 0);
+  gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
+  gl.uniform1f(uniforms.toDark, target === "dark" ? 1 : 0);
+
   const short = Math.min(window.innerWidth, window.innerHeight);
   const toLiquid = (x: number, y: number) => [
     (x * 2 - window.innerWidth) / short / 2,
@@ -155,39 +198,48 @@ export function pourGold(
       return Math.hypot(cornerX - originX, cornerY - originY);
     }),
   );
-  gl.uniform2f(gl.getUniformLocation(program, "uOrigin"), originX, originY);
-  gl.uniform1f(gl.getUniformLocation(program, "uReach"), reach);
-  const progress = gl.getUniformLocation(program, "uProgress");
-  const fade = gl.getUniformLocation(program, "uFade");
-  const time = gl.getUniformLocation(program, "uTime");
+  gl.uniform2f(uniforms.origin, originX, originY);
+  gl.uniform1f(uniforms.reach, reach);
 
-  const start = performance.now();
+  document.body.append(canvas);
+  pauseShaders(true);
+
   const clockStart = liquidClock.time;
+  let start: number | undefined;
   let covered = false;
+  let settledFrames = 0;
+  let fadeStart: number | undefined;
 
   const draw = (now: number) => {
+    // Timed from the first drawn frame, so the opening burst is never skipped.
+    start ??= now;
     const elapsed = now - start;
     // Keeps the hero in step, so its liquid matches this one when the canvas fades away.
     liquidClock.time = clockStart + elapsed / 1000;
 
     if (!covered && elapsed >= SPREAD_MS) {
       covered = true;
+      pauseShaders(false);
       onCovered();
     }
+    // The swap restyles the page and may compile a shader, so the fade waits for it to finish.
+    if (covered && fadeStart === undefined && ++settledFrames >= SETTLE_FRAMES) {
+      fadeStart = now + HOLD_MS;
+    }
 
+    const faded = fadeStart === undefined ? 0 : Math.max(0, (now - fadeStart) / FADE_MS);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.uniform1f(progress, ease(Math.min(elapsed / SPREAD_MS, 1)));
-    gl.uniform1f(fade, 1 - Math.max(0, Math.min((elapsed - SPREAD_MS - HOLD_MS) / FADE_MS, 1)));
-    gl.uniform1f(time, liquidClock.time);
+    gl.uniform1f(uniforms.progress, ease(Math.min(elapsed / SPREAD_MS, 1)));
+    gl.uniform1f(uniforms.fade, 1 - Math.min(faded, 1));
+    gl.uniform1f(uniforms.time, liquidClock.time);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 
-    if (elapsed < SPREAD_MS + HOLD_MS + FADE_MS) {
+    if (faded < 1) {
       requestAnimationFrame(draw);
       return;
     }
     canvas.remove();
-    gl.getExtension("WEBGL_lose_context")?.loseContext();
     onDone();
   };
   requestAnimationFrame(draw);

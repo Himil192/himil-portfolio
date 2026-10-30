@@ -1,7 +1,8 @@
 "use client";
 
-import { ReactNode } from "react";
-import { useThemeChoice } from "@/lib/hooks";
+import { ReactNode, useEffect } from "react";
+import { useReducedMotion, useThemeChoice } from "@/lib/hooks";
+import { prepareGold } from "@/lib/liquidGold";
 import { changeTheme, ThemeChoice } from "@/lib/theme";
 
 const icons: Record<ThemeChoice, ReactNode> = {
@@ -22,6 +23,13 @@ const icons: Record<ThemeChoice, ReactNode> = {
 
 export default function ThemeSwitch({ name }: { name: string }) {
   const choice = useThemeChoice();
+  const reduced = useReducedMotion();
+
+  useEffect(() => {
+    if (reduced) return;
+    const idle = window.requestIdleCallback ?? ((run: () => void) => window.setTimeout(run, 1500));
+    idle(prepareGold);
+  }, [reduced]);
 
   return (
     <fieldset className="theme-switch">

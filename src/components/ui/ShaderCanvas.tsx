@@ -4,12 +4,13 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Component, ReactNode, useEffect, useMemo, useRef } from "react";
 import { ShaderMaterial, Vector2, Vector3 } from "three";
 import { ResolvedTheme } from "@/lib/theme";
-import { liquidClock, palettes, ShaderName, shaders, vertex } from "@/shaders";
+import { liquidClock, palettes, SHADER_PAUSE, ShaderName, shaders, vertex } from "@/shaders";
 
 function Surface({ name, theme, still }: { name: ShaderName; theme: ResolvedTheme; still: boolean }) {
   const material = useRef<ShaderMaterial>(null);
   const element = useThree((state) => state.gl.domElement);
   const invalidate = useThree((state) => state.invalidate);
+  const setFrameloop = useThree((state) => state.setFrameloop);
   const uniforms = useMemo(
     () => ({
       uTime: { value: name === "liquid" ? liquidClock.time : 8 },
@@ -31,6 +32,15 @@ function Surface({ name, theme, still }: { name: ShaderName; theme: ResolvedThem
     uniforms.uHighlight.value.set(...highlight);
     invalidate();
   }, [theme, uniforms, invalidate]);
+
+  useEffect(() => {
+    const pause = (event: Event) => {
+      const paused = (event as CustomEvent<boolean>).detail;
+      setFrameloop(paused ? "never" : still ? "demand" : "always");
+    };
+    window.addEventListener(SHADER_PAUSE, pause);
+    return () => window.removeEventListener(SHADER_PAUSE, pause);
+  }, [setFrameloop, still]);
 
   useEffect(() => {
     if (still || theme === "light") return;
