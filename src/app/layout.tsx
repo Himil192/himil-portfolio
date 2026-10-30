@@ -12,9 +12,27 @@ const display = Instrument_Serif({
 });
 const body = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
 
+const title = `${site.name} | ${site.role}`;
+const images = [{ url: "/og.png", width: 1200, height: 630, alt: title }];
+
 export const metadata: Metadata = {
-  title: `${site.name} | ${site.role}`,
+  metadataBase: new URL(site.url),
+  title,
   description: site.intro,
+  alternates: { canonical: "/" },
+  openGraph: { type: "website", url: "/", siteName: site.name, title, description: site.intro, images },
+  twitter: { card: "summary_large_image", title, description: site.intro, images },
+};
+
+const person = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: site.name,
+  jobTitle: site.role,
+  url: site.url,
+  email: `mailto:${site.email}`,
+  address: { "@type": "PostalAddress", addressRegion: "Gujarat", addressCountry: "IN" },
+  sameAs: site.socials.map((social) => social.href),
 };
 
 export const viewport: Viewport = { themeColor: "#0a0a0b" };
@@ -22,7 +40,13 @@ export const viewport: Viewport = { themeColor: "#0a0a0b" };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body>{children}</body>
+      <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(person).replace(/</g, "\\u003c") }}
+        />
+        {children}
+      </body>
     </html>
   );
 }

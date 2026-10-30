@@ -19,6 +19,8 @@ npm start        # serve out/
 npm run lint
 ```
 
+Set `NEXT_PUBLIC_SITE_URL` to the live domain when building for production, so share previews, the sitemap, and `robots.txt` point to it.
+
 ## Scroll sequence
 
 The frames in `public/frames` are rendered from the Three.js scene in `scripts/frame-scene.html`. To re-render them:
