@@ -2,13 +2,11 @@
 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText } from "gsap/SplitText";
 import Lenis from "lenis";
 import { useEffect } from "react";
 import { useReducedMotion, useResolvedTheme } from "@/lib/hooks";
-import { getResolvedTheme } from "@/lib/theme";
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.registerPlugin(ScrollTrigger);
 ScrollTrigger.config({ ignoreMobileResize: true });
 
 // Owns page-wide scroll behaviour: smooth scrolling, reveals, and parallax.
@@ -25,18 +23,55 @@ export default function Motion() {
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
 
-    const calm = getResolvedTheme() === "light";
+    return () => {
+      gsap.ticker.remove(tick);
+      lenis.destroy();
+    };
+  }, [reduced]);
+
+  useEffect(() => {
+    if (reduced) return;
+
     const context = gsap.context(() => {
-      const reveals = calm ? "[data-reveal]:not(.section-title)" : "[data-reveal]";
-      gsap.utils.toArray<HTMLElement>(reveals).forEach((element) => {
+      gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((element) => {
+        if (theme === "light") {
+          // Tied to the scrollbar, so content glides in and reverses when scrolling back.
+          // Clamped so the last blocks on the page still finish.
+          gsap.fromTo(
+            element,
+            { y: 56, autoAlpha: 0 },
+            {
+              y: 0,
+              autoAlpha: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: element,
+                start: "clamp(top 95%)",
+                end: "clamp(top 62%)",
+                scrub: 0.6,
+              },
+            },
+          );
+          return;
+        }
         gsap.from(element, {
-          y: calm ? 14 : 44,
+          y: 44,
           autoAlpha: 0,
-          duration: calm ? 1.4 : 1.1,
+          duration: 1.1,
           ease: "power3.out",
           scrollTrigger: { trigger: element, start: "top 88%", once: true },
         });
       });
+
+      if (theme === "light") {
+        gsap.to("#top .shell", {
+          y: -70,
+          autoAlpha: 0.15,
+          ease: "none",
+          scrollTrigger: { trigger: "#top", start: "top top", end: "bottom 30%", scrub: 0.6 },
+        });
+      }
+
       gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((element) => {
         gsap.to(element, {
           yPercent: Number(element.dataset.parallax),
@@ -47,71 +82,7 @@ export default function Motion() {
     });
 
     document.fonts.ready.then(() => ScrollTrigger.refresh());
-
-    return () => {
-      context.revert();
-      gsap.ticker.remove(tick);
-      lenis.destroy();
-    };
-  }, [reduced]);
-
-  // Light mode's motion is typographic: text rises softly, and italic words settle from gold to ink.
-  useEffect(() => {
-    if (reduced || theme !== "light") return;
-
-    let cancelled = false;
-    let context: gsap.Context | undefined;
-    const accent = getComputedStyle(document.documentElement).getPropertyValue("--color-accent");
-
-    const settle = (element: Element | null, delay: number, scrollTrigger?: ScrollTrigger.Vars) => {
-      if (!element) return;
-      gsap.from(element, { color: accent, duration: 1.4, delay, ease: "power1.inOut", scrollTrigger });
-    };
-
-    document.fonts.ready.then(() => {
-      if (cancelled) return;
-      context = gsap.context(() => {
-        const name = document.querySelector("#top h1");
-        if (name) {
-          SplitText.create(name, {
-            type: "words,chars",
-            mask: "chars",
-            charsClass: "split-char",
-            autoSplit: true,
-            onSplit: (self) =>
-              gsap.from(self.chars, { yPercent: 115, duration: 1.1, stagger: 0.028, ease: "power3.out" }),
-          });
-          settle(name.querySelector(".text-foil"), 0.5);
-        }
-
-        gsap.utils.toArray<HTMLElement>(".section-title").forEach((title) => {
-          // A heading revealed in dark before switching must not run two animations.
-          gsap.killTweensOf(title);
-          gsap.set(title, { clearProps: "all" });
-          const scrollTrigger = { trigger: title, start: "top 88%", once: true };
-          SplitText.create(title, {
-            type: "words",
-            mask: "words",
-            wordsClass: "split-word",
-            autoSplit: true,
-            onSplit: (self) =>
-              gsap.from(self.words, {
-                yPercent: 115,
-                duration: 1.1,
-                stagger: 0.07,
-                ease: "power3.out",
-                scrollTrigger,
-              }),
-          });
-          settle(title.querySelector(".text-foil"), 0.35, scrollTrigger);
-        });
-      });
-    });
-
-    return () => {
-      cancelled = true;
-      context?.revert();
-    };
+    return () => context.revert();
   }, [reduced, theme]);
 
   return null;
