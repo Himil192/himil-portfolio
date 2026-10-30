@@ -4,7 +4,7 @@ import { site } from "@/content/site";
 
 export default function Contact() {
   return (
-    <footer id="contact" data-inspect="Contact" className="relative overflow-hidden">
+    <footer id="contact" className="relative overflow-hidden">
       <ShaderSurface name="contour" />
       <div className="absolute inset-0 bg-gradient-to-b from-obsidian via-obsidian/60 to-obsidian" />
       <div className="shell relative py-32 md:py-48">

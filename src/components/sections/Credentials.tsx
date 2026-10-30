@@ -2,7 +2,7 @@ import { achievements, certifications, education, skills } from "@/content/site"
 
 export default function Credentials() {
   return (
-    <section id="skills" data-inspect="Credentials" className="shell py-28 md:py-44">
+    <section id="skills" className="shell py-28 md:py-44">
       <p className="eyebrow" data-reveal>
         Toolkit
       </p>

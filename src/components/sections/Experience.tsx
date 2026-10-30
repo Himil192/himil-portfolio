@@ -2,7 +2,7 @@ import { experience } from "@/content/site";
 
 export default function Experience() {
   return (
-    <section id="experience" data-inspect="Experience" className="shell relative py-28 md:py-44">
+    <section id="experience" className="shell relative py-28 md:py-44">
       <span
         data-parallax="-30"
         aria-hidden

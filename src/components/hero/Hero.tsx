@@ -4,7 +4,7 @@ import ShaderSurface from "@/components/ui/ShaderSurface";
 
 export default function Hero() {
   return (
-    <section id="top" data-inspect="Hero" className="relative flex min-h-dvh items-end overflow-hidden">
+    <section id="top" className="relative flex min-h-dvh items-end overflow-hidden">
       <ShaderSurface name="liquid" />
       <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/70 to-obsidian/20" />
       <div className="shell relative pb-16 md:pb-24">

@@ -2,7 +2,7 @@ import JobMatch from "./JobMatch";
 
 export default function Playground() {
   return (
-    <section id="playground" data-inspect="Playground" className="shell py-28 md:py-44">
+    <section id="playground" className="shell py-28 md:py-44">
       <p className="eyebrow" data-reveal>
         Playground
       </p>
