@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "npx --yes serve out",
     "lint": "eslint .",
-    "frames": "node scripts/render-frames.mjs"
+    "frames": "node scripts/render-frames.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.2",
@@ -29,6 +30,7 @@
     "playwright": "^1.64.1",
     "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
   }
 }

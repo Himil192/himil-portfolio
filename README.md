@@ -8,7 +8,7 @@ Live site: https://himil-portfolio.vercel.app
 
 ## Deployment
 
-Every push and pull request to `main` runs lint, type checks, a production build, and a dependency audit in GitHub Actions. Vercel deploys `main` to production and creates a preview link for each branch.
+Every push and pull request to `main` runs lint, type checks, unit tests, a production build, and a dependency audit in GitHub Actions. Vercel deploys `main` to production and creates a preview link for each branch.
 
 ## Stack
 
@@ -25,6 +25,7 @@ npm run dev      # development server
 npm run build    # static export to out/
 npm start        # serve out/
 npm run lint
+npm test         # unit tests
 ```
 
 Set `NEXT_PUBLIC_SITE_URL` to the live domain when building for production, so share previews, the sitemap, and `robots.txt` point to it.
