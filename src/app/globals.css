@@ -144,6 +144,14 @@ body::after {
   color: rgb(244 239 230 / 0.5);
 }
 
+.search option {
+  background: var(--color-obsidian);
+}
+
+.lab-range {
+  accent-color: var(--color-champagne);
+}
+
 .link {
   display: inline-block;
   padding-block: 0.25rem;
@@ -191,7 +199,8 @@ body::after {
 }
 
 .nav-bar {
-  background: linear-gradient(to bottom, rgb(10 10 11 / 0.85), transparent);
+  background: rgb(10 10 11 / 0.8);
+  backdrop-filter: blur(12px);
 }
 
 .nav-toggle {

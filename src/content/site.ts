@@ -27,27 +27,27 @@ export const site = {
 
 export const chapters = [
   {
-    kicker: "01 / Scene",
-    title: "Written, not modelled.",
-    body: "This form is a Three.js scene written for this site, with no 3D modelling tool involved.",
+    kicker: "01 / Data",
+    title: "It starts with data.",
+    body: "At Neonat Health that meant 3+ REST APIs and 500+ food items.",
     range: [0, 0.22],
   },
   {
-    kicker: "02 / Render",
-    title: "Rendered to frames.",
-    body: "Playwright steps through the scene and sharp compresses it into 240 desktop and 120 mobile WebP frames.",
+    kicker: "02 / Components",
+    title: "Built into components.",
+    body: "At Cognihive I connected reusable UI components to backend APIs.",
     range: [0.26, 0.5],
   },
   {
-    kicker: "03 / Playback",
-    title: "Loaded in stages.",
-    body: "Sparse key frames arrive first so scrubbing works early, then the rest fill in behind them.",
+    kicker: "03 / Interface",
+    title: "Shaped into an interface.",
+    body: "Responsive layouts, tuned for performance and cross-browser compatibility.",
     range: [0.54, 0.76],
   },
   {
-    kicker: "04 / Respect",
-    title: "Only when wanted.",
-    body: "Frames load near this section, reduced motion gets a single still, and Save-Data gets key frames only.",
+    kicker: "04 / Shipped",
+    title: "Shipped in React and Next.js.",
+    body: "From the first API call to a working product.",
     range: [0.82, 1],
   },
 ] as const;
@@ -153,6 +153,18 @@ export const otherProjects = [
       { label: "Source", href: "https://github.com/Himil192/ERP-College-management-system-using-Django" },
     ],
   },
+];
+
+// Approximate values per 100 g, for the lab's demo calculator only.
+export const sampleFoods = [
+  { name: "Cooked rice", protein: 2.7, carbs: 28, fat: 0.3 },
+  { name: "Cooked moong dal", protein: 7, carbs: 19, fat: 0.4 },
+  { name: "Paneer", protein: 18, carbs: 1.2, fat: 20 },
+  { name: "Boiled egg", protein: 13, carbs: 1.1, fat: 11 },
+  { name: "Cooked chicken breast", protein: 31, carbs: 0, fat: 3.6 },
+  { name: "Banana", protein: 1.1, carbs: 23, fat: 0.3 },
+  { name: "Oats", protein: 17, carbs: 66, fat: 7 },
+  { name: "Almonds", protein: 21, carbs: 22, fat: 49 },
 ];
 
 export const skills = [

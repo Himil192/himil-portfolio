@@ -113,9 +113,9 @@ export default function ScrollSequence() {
   if (reduced) {
     return (
       <section id="story" className="shell py-24">
-        <p className="eyebrow">Story</p>
+        <p className="eyebrow">Process</p>
         <h2 className="section-title">
-          How this site <span className="text-foil italic">was built</span>
+          How I <span className="text-foil italic">build</span>
         </h2>
         <div className="mt-12 grid gap-12 md:grid-cols-2 md:items-center">
           <Image
