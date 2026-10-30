@@ -51,7 +51,7 @@ export const chapters = [
   {
     kicker: "03 / Production",
     title: "Shipped in React and Next.js.",
-    body: "At Cognihive LLC I worked on product interfaces, performance, and cross-browser compatibility.",
+    body: "At Cognihive LLC I built the landing page and worked on performance and cross-browser compatibility.",
     range: [0.54, 0.76],
   },
   {
@@ -69,7 +69,7 @@ export const experience = [
     period: "Aug 2025 – Jun 2026",
     points: [
       "Developed and maintained responsive web applications using React.js and Next.js",
-      "Built frontend features and user interfaces for the Cognihive application",
+      "Built frontend features and user interfaces",
       "Improved application performance and cross-browser compatibility",
       "Integrated reusable UI components with backend APIs",
     ],
@@ -102,11 +102,10 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    title: "Cognihive",
-    tag: "Enterprise AI platform",
-    description: "A platform that orchestrates AI agents, workflows, and enterprise systems.",
-    built:
-      "Built the frontend features and interfaces in React and Next.js, connected reusable components to backend APIs, and improved performance and cross-browser compatibility.",
+    title: "Cognihive landing page",
+    tag: "Company website",
+    description: "The public landing page for Cognihive, an enterprise AI company.",
+    built: "Built the landing page, including its responsive layout, in React and Next.js.",
     stack: ["React", "Next.js"],
     shader: "cells",
     image: "/projects/cognihive.webp",
@@ -205,12 +204,12 @@ export const matchSkills = [
   {
     name: "React",
     aliases: ["react", "react.js", "reactjs"],
-    evidence: "Built product interfaces at Cognihive and the Neonat Health application in React.",
+    evidence: "Built the Cognihive landing page and the Neonat Health application in React.",
   },
   {
     name: "Next.js",
     aliases: ["next.js", "nextjs", "next js"],
-    evidence: "Developed web applications at Cognihive and built this portfolio in Next.js.",
+    evidence: "Built the Cognihive landing page and this portfolio in Next.js.",
   },
   {
     name: "JavaScript",
