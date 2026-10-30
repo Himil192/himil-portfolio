@@ -1,6 +1,7 @@
 "use client";
 
 import { RefObject, useEffect, useState, useSyncExternalStore } from "react";
+import { getResolvedTheme, getThemeChoice, subscribeTheme, ThemeChoice } from "./theme";
 
 function subscribeMotion(listener: () => void) {
   const query = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -14,6 +15,14 @@ export function useReducedMotion() {
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     () => false,
   );
+}
+
+export function useThemeChoice() {
+  return useSyncExternalStore<ThemeChoice>(subscribeTheme, getThemeChoice, () => "system");
+}
+
+export function useResolvedTheme() {
+  return useSyncExternalStore(subscribeTheme, getResolvedTheme, () => "dark" as const);
 }
 
 export function useInView(ref: RefObject<Element | null>, rootMargin = "120px") {

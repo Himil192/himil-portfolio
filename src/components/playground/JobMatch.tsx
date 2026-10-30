@@ -1,38 +1,23 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { matchSkills, sampleJob, site, unfamiliarSkills } from "@/content/site";
+import CopyButton from "@/components/ui/CopyButton";
+import { sampleJob, site } from "@/content/site";
+import { compareJob, MatchResult, summarize } from "@/lib/jobMatch";
 
 const MAX_LENGTH = 20000;
 
-type Skill = { name: string; aliases: string[] };
-type Result = { matched: typeof matchSkills; unfamiliar: typeof unfamiliarSkills };
-
-function mentions(text: string, { aliases }: Skill) {
-  return aliases.some((alias) => {
-    const escaped = alias.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
-    return new RegExp(`(?<![\\w.+#-])${escaped}(?![\\w+#-])`, "i").test(text);
-  });
-}
-
-function compare(text: string): Result {
-  return {
-    matched: matchSkills.filter((skill) => mentions(text, skill)),
-    unfamiliar: unfamiliarSkills.filter((skill) => mentions(text, skill)),
-  };
-}
-
 export default function JobMatch() {
   const [text, setText] = useState("");
-  const [result, setResult] = useState<Result>();
+  const [result, setResult] = useState<MatchResult>();
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    setResult(compare(text));
+    setResult(compareJob(text));
   };
   const trySample = () => {
     setText(sampleJob);
-    setResult(compare(sampleJob));
+    setResult(compareJob(sampleJob));
   };
 
   const total = result ? result.matched.length + result.unfamiliar.length : 0;
@@ -41,7 +26,7 @@ export default function JobMatch() {
   return (
     <div className="grid gap-10 lg:grid-cols-2">
       <form onSubmit={submit}>
-        <label htmlFor="job-text" className="text-sm text-ivory/70">
+        <label htmlFor="job-text" className="text-sm text-ink/70">
           Job description
         </label>
         <textarea
@@ -53,7 +38,7 @@ export default function JobMatch() {
           placeholder="Paste the role you are hiring for"
           className="job-input mt-2"
         />
-        <p className="mt-2 text-sm text-ivory/70">
+        <p className="mt-2 text-sm text-ink/70">
           Runs only in your browser. Nothing you paste is sent or saved.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
@@ -68,13 +53,13 @@ export default function JobMatch() {
 
       <div aria-live="polite">
         {!result && (
-          <p className="text-ivory/70">
+          <p className="text-ink/70">
             Your result appears here, with evidence for every match and an honest list of what I
             have not used yet.
           </p>
         )}
         {result && total === 0 && (
-          <p className="text-ivory/70">
+          <p className="text-ink/70">
             I could not find any technical skills in that text. Try pasting the full description.
           </p>
         )}
@@ -88,13 +73,13 @@ export default function JobMatch() {
                 {result.matched.map((skill) => (
                   <li key={skill.name}>
                     <p className="eyebrow">{skill.name}</p>
-                    <p className="mt-1 text-sm text-ivory/70">{skill.evidence}</p>
+                    <p className="mt-1 text-sm text-ink/70">{skill.evidence}</p>
                   </li>
                 ))}
               </ul>
             )}
             {result.unfamiliar.length > 0 && (
-              <div className="mt-6 border-t border-ivory/10 pt-5">
+              <div className="mt-6 border-t border-ink/10 pt-5">
                 <p className="eyebrow">New to me</p>
                 <ul className="mt-3 flex flex-wrap gap-2">
                   {result.unfamiliar.map((skill) => (
@@ -105,9 +90,12 @@ export default function JobMatch() {
                 </ul>
               </div>
             )}
-            <a href={`mailto:${site.email}?subject=${subject}`} className="button button-foil mt-7">
-              Talk to me about this role
-            </a>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <a href={`mailto:${site.email}?subject=${subject}`} className="button button-foil">
+                Talk to me about this role
+              </a>
+              <CopyButton text={summarize(result)} label="Copy result" />
+            </div>
           </div>
         )}
       </div>

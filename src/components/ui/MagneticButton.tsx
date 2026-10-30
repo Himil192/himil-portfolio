@@ -1,7 +1,7 @@
 "use client";
 
 import { MouseEvent, ReactNode, useRef } from "react";
-import { useReducedMotion } from "@/lib/hooks";
+import { useReducedMotion, useResolvedTheme } from "@/lib/hooks";
 
 type Props = {
   href?: string;
@@ -13,10 +13,11 @@ type Props = {
 export default function MagneticButton({ href, children, download, variant = "ghost" }: Props) {
   const ref = useRef<HTMLAnchorElement & HTMLButtonElement>(null);
   const reduced = useReducedMotion();
+  const theme = useResolvedTheme();
   const external = href?.startsWith("http");
 
   const move = (event: MouseEvent<HTMLElement>) => {
-    if (reduced || !ref.current) return;
+    if (reduced || theme === "light" || !ref.current) return;
     const box = ref.current.getBoundingClientRect();
     const x = (event.clientX - box.left - box.width / 2) * 0.28;
     const y = (event.clientY - box.top - box.height / 2) * 0.28;

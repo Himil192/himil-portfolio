@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { useEffect } from "react";
 import { useReducedMotion } from "@/lib/hooks";
+import { getResolvedTheme } from "@/lib/theme";
 
 gsap.registerPlugin(ScrollTrigger);
 ScrollTrigger.config({ ignoreMobileResize: true });
@@ -22,12 +23,13 @@ export default function Motion() {
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
 
+    const calm = getResolvedTheme() === "light";
     const context = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((element) => {
         gsap.from(element, {
-          y: 44,
+          y: calm ? 14 : 44,
           autoAlpha: 0,
-          duration: 1.1,
+          duration: calm ? 1.4 : 1.1,
           ease: "power3.out",
           scrollTrigger: { trigger: element, start: "top 88%", once: true },
         });

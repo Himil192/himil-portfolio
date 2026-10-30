@@ -13,9 +13,9 @@ const common = /* glsl */ `
   uniform float uPresence;
   varying vec2 vUv;
 
-  const vec3 OBSIDIAN = vec3(0.039, 0.039, 0.043);
-  const vec3 CHAMPAGNE = vec3(0.788, 0.659, 0.416);
-  const vec3 IVORY = vec3(0.957, 0.937, 0.902);
+  uniform vec3 uCanvas;
+  uniform vec3 uAccent;
+  uniform vec3 uHighlight;
 
   float hash(vec2 p) {
     p = fract(p * vec2(123.34, 456.21));
@@ -71,8 +71,8 @@ const liquid = /* glsl */ `
     vec3 n = normalize(vec3(height(p + vec2(e, 0.0)) - h, height(p + vec2(0.0, e)) - h, e * 1.1));
     vec3 r = reflect(vec3(0.0, 0.0, -1.0), n);
     float band = pow(0.5 + 0.5 * sin(r.x * 3.0 + r.y * 2.0 + h * 3.0), 4.0);
-    vec3 color = mix(OBSIDIAN, CHAMPAGNE * 0.62, band);
-    color += IVORY * pow(band, 12.0) * 0.4;
+    vec3 color = mix(uCanvas, uAccent * 0.62, band);
+    color += uHighlight * pow(band, 12.0) * 0.4;
     gl_FragColor = vec4(color, 1.0);
   }
 `;
@@ -86,7 +86,7 @@ const contour = /* glsl */ `
     float value = (fbm(p * 1.1 + uTime * 0.035) + lift * 0.35) * 16.0;
     float width = fwidth(value);
     float line = 1.0 - smoothstep(0.0, 1.3, abs(fract(value) - 0.5) / max(width, 0.0001));
-    vec3 color = mix(OBSIDIAN, CHAMPAGNE, line * (0.38 + lift * 0.62));
+    vec3 color = mix(uCanvas, uAccent, line * (0.38 + lift * 0.62));
     gl_FragColor = vec4(color, 1.0);
   }
 `;
@@ -101,8 +101,8 @@ const silk = /* glsl */ `
     float fold = sin(p.x * 2.4 + 2.2 * fbm(p * 1.2 + t) + t);
     fold += 0.5 * sin(p.y * 3.1 - 2.8 * fbm(p * 0.9 - t));
     float light = pow(0.5 + 0.25 * fold, 3.0);
-    vec3 color = mix(OBSIDIAN, CHAMPAGNE * 0.85, light * 1.5);
-    color += IVORY * pow(light, 5.0) * 0.5;
+    vec3 color = mix(uCanvas, uAccent * 0.85, light * 1.5);
+    color += uHighlight * pow(light, 5.0) * 0.5;
     gl_FragColor = vec4(color, 1.0);
   }
 `;
@@ -131,11 +131,19 @@ const cells = /* glsl */ `
     }
     float edge = 1.0 - smoothstep(0.0, 0.16, sqrt(second) - sqrt(first));
     float glow = exp(-dot(p - pointer() * 3.2, p - pointer() * 3.2) * 0.32) * uPresence;
-    vec3 color = mix(OBSIDIAN, CHAMPAGNE, edge * (0.28 + glow * 0.72));
-    color += IVORY * edge * glow * 0.25;
+    vec3 color = mix(uCanvas, uAccent, edge * (0.28 + glow * 0.72));
+    color += uHighlight * edge * glow * 0.25;
     gl_FragColor = vec4(color, 1.0);
   }
 `;
+
+type Rgb = [number, number, number];
+type Palette = { canvas: Rgb; accent: Rgb; highlight: Rgb; speed: number };
+
+export const palettes: Record<"dark" | "light", Palette> = {
+  dark: { canvas: [0.039, 0.039, 0.043], accent: [0.788, 0.659, 0.416], highlight: [0.957, 0.937, 0.902], speed: 1 },
+  light: { canvas: [0.984, 0.98, 0.973], accent: [0.9, 0.885, 0.855], highlight: [0.9, 0.885, 0.855], speed: 0.35 },
+};
 
 export const shaders = { liquid, contour, silk, cells };
 export type ShaderName = keyof typeof shaders;

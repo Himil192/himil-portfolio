@@ -26,6 +26,15 @@ export const site = {
   ],
 };
 
+export const navLinks = [
+  { label: "Experience", href: "#experience" },
+  { label: "Work", href: "#work" },
+  { label: "Skills", href: "#skills" },
+  { label: "Story", href: "#story" },
+  { label: "Playground", href: "#playground" },
+  { label: "Contact", href: "#contact" },
+];
+
 export const chapters = [
   {
     kicker: "01 / Foundation",
@@ -131,12 +140,15 @@ export const projects: Project[] = [
       { label: "Source", href: "https://github.com/Himil192/TerraBloom" },
     ],
   },
-];
-
-export const otherProjects = [
   {
     title: "Karolina Kobiałka",
-    note: "WordPress website and portfolio for a client",
+    tag: "Client website",
+    description: "A website for a manager, coach, and mentor, built for a real client.",
+    built: "Built the site in WordPress, with about, offer, shop, and contact pages.",
+    stack: ["WordPress"],
+    shader: "silk",
+    image: "/projects/karolina.webp",
+    imageAlt: "Karolina Kobiałka website showing her name and navigation above a portrait",
     links: [{ label: "Live site", href: "https://karolinakobialka.pl/" }],
   },
 ];

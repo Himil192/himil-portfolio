@@ -2,25 +2,38 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Component, ReactNode, useEffect, useMemo, useRef } from "react";
-import { ShaderMaterial, Vector2 } from "three";
-import { ShaderName, shaders, vertex } from "@/shaders";
+import { ShaderMaterial, Vector2, Vector3 } from "three";
+import { ResolvedTheme } from "@/lib/theme";
+import { palettes, ShaderName, shaders, vertex } from "@/shaders";
 
-function Surface({ name, still }: { name: ShaderName; still: boolean }) {
+function Surface({ name, theme, still }: { name: ShaderName; theme: ResolvedTheme; still: boolean }) {
   const material = useRef<ShaderMaterial>(null);
   const element = useThree((state) => state.gl.domElement);
+  const invalidate = useThree((state) => state.invalidate);
   const uniforms = useMemo(
     () => ({
       uTime: { value: 8 },
       uResolution: { value: new Vector2(1, 1) },
       uPointer: { value: new Vector2(0, 0) },
       uPresence: { value: 0 },
+      uCanvas: { value: new Vector3() },
+      uAccent: { value: new Vector3() },
+      uHighlight: { value: new Vector3() },
     }),
     [],
   );
   const target = useRef({ x: 0, y: 0, presence: 0 });
 
   useEffect(() => {
-    if (still) return;
+    const { canvas, accent, highlight } = palettes[theme];
+    uniforms.uCanvas.value.set(...canvas);
+    uniforms.uAccent.value.set(...accent);
+    uniforms.uHighlight.value.set(...highlight);
+    invalidate();
+  }, [theme, uniforms, invalidate]);
+
+  useEffect(() => {
+    if (still || theme === "light") return;
     const move = (event: PointerEvent) => {
       const box = element.getBoundingClientRect();
       const x = ((event.clientX - box.left) / box.width) * 2 - 1;
@@ -29,14 +42,14 @@ function Surface({ name, still }: { name: ShaderName; still: boolean }) {
     };
     window.addEventListener("pointermove", move, { passive: true });
     return () => window.removeEventListener("pointermove", move);
-  }, [element, still]);
+  }, [element, still, theme]);
 
   useFrame((state, delta) => {
     if (!material.current) return;
     const { uTime, uResolution, uPointer, uPresence } = material.current.uniforms;
     uResolution.value.set(state.size.width, state.size.height);
     if (still) return;
-    uTime.value += delta;
+    uTime.value += delta * palettes[theme].speed;
     uPointer.value.lerp(target.current, 0.08);
     uPresence.value += (target.current.presence - uPresence.value) * 0.06;
   });
@@ -65,7 +78,15 @@ class WebGLBoundary extends Component<{ children: ReactNode }, { failed: boolean
   }
 }
 
-export default function ShaderCanvas({ name, still }: { name: ShaderName; still: boolean }) {
+export default function ShaderCanvas({
+  name,
+  theme,
+  still,
+}: {
+  name: ShaderName;
+  theme: ResolvedTheme;
+  still: boolean;
+}) {
   return (
     <WebGLBoundary>
       <Canvas
@@ -75,7 +96,7 @@ export default function ShaderCanvas({ name, still }: { name: ShaderName; still:
         gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
         style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
       >
-        <Surface name={name} still={still} />
+        <Surface name={name} theme={theme} still={still} />
       </Canvas>
     </WebGLBoundary>
   );

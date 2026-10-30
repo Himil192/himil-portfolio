@@ -1,4 +1,5 @@
 import MagneticButton from "@/components/ui/MagneticButton";
+import CopyButton from "@/components/ui/CopyButton";
 import ShaderSurface from "@/components/ui/ShaderSurface";
 import { site } from "@/content/site";
 
@@ -6,7 +7,7 @@ export default function Contact() {
   return (
     <footer id="contact" className="relative overflow-hidden">
       <ShaderSurface name="contour" />
-      <div className="absolute inset-0 bg-gradient-to-b from-obsidian via-obsidian/60 to-obsidian" />
+      <div className="absolute inset-0 bg-gradient-to-b from-canvas via-canvas/60 to-canvas" />
       <div className="shell relative py-32 md:py-48">
         <p className="eyebrow" data-reveal>
           Contact
@@ -18,11 +19,12 @@ export default function Contact() {
           <MagneticButton href={`mailto:${site.email}`} variant="foil">
             {site.email}
           </MagneticButton>
+          <CopyButton text={site.email} label="Copy email" />
           <MagneticButton href={site.resume} download={site.resumeFilename}>
             Download resume
           </MagneticButton>
         </div>
-        <div className="mt-20 flex flex-wrap items-center justify-between gap-6 border-t border-ivory/10 pt-6">
+        <div className="mt-20 flex flex-wrap items-center justify-between gap-6 border-t border-ink/10 pt-6">
           <ul className="flex flex-wrap gap-6">
             {site.socials.map((social) => (
               <li key={social.href}>

@@ -1,24 +1,86 @@
 @import "tailwindcss";
 
 @theme {
-  --color-obsidian: #0a0a0b;
-  --color-champagne: #c9a86a;
-  --color-ivory: #f4efe6;
+  --color-canvas: #0a0a0b;
+  --color-accent: #c9a86a;
+  --color-ink: #f4efe6;
   --font-display: var(--font-instrument), serif;
   --font-sans: var(--font-manrope), system-ui, sans-serif;
 }
 
+/* Dark is the expressive theme. */
+:root,
+[data-theme="dark"] {
+  --color-canvas: #0a0a0b;
+  --color-accent: #c9a86a;
+  --color-ink: #f4efe6;
+  --foil-text: linear-gradient(105deg, #c9a86a 10%, #f4efe6 42%, #c9a86a 58%, #8f7442 90%) 0 0 / 220% 100%;
+  --foil-motion: foil 9s ease-in-out infinite alternate;
+  --primary-fill: linear-gradient(105deg, #c9a86a 20%, #f4efe6 50%, #c9a86a 80%) 100% 0 / 240% 100%;
+  --primary-ink: #0a0a0b;
+  --primary-hover: 0 0;
+  --primary-hover-opacity: 1;
+  --noise-opacity: 0.22;
+  --cursor-display: block;
+  --ambient-glow: rgb(201 168 106 / 0.22);
+  --hairline: 14%;
+  color-scheme: dark;
+}
+
+/* Light is deliberately quiet: flat ink, no noise, no shimmer. */
+[data-theme="light"] {
+  --color-canvas: #fbfaf8;
+  --color-accent: #7a5a1f;
+  --color-ink: #151413;
+  --foil-text: linear-gradient(#151413, #151413);
+  --foil-motion: none;
+  --primary-fill: #151413;
+  --primary-ink: #fbfaf8;
+  --primary-hover: 0 0;
+  --primary-hover-opacity: 0.82;
+  --noise-opacity: 0;
+  --cursor-display: none;
+  --ambient-glow: transparent;
+  --hairline: 12%;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --color-canvas: #fbfaf8;
+    --color-accent: #7a5a1f;
+    --color-ink: #151413;
+    --foil-text: linear-gradient(#151413, #151413);
+    --foil-motion: none;
+    --primary-fill: #151413;
+    --primary-ink: #fbfaf8;
+    --primary-hover: 0 0;
+    --primary-hover-opacity: 0.82;
+    --noise-opacity: 0;
+    --cursor-display: none;
+    --ambient-glow: transparent;
+    --hairline: 12%;
+    color-scheme: light;
+  }
+}
+
 html {
-  background: var(--color-obsidian);
-  color: var(--color-ivory);
-  scrollbar-color: var(--color-champagne) var(--color-obsidian);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  scrollbar-color: var(--color-accent) var(--color-canvas);
 }
 
 body {
-  background: var(--color-obsidian);
+  background: var(--color-canvas);
   font-family: var(--font-sans);
   overflow-x: clip;
   -webkit-font-smoothing: antialiased;
+}
+
+/* A scoped theme, like the Story band, needs its own colours. */
+[data-theme] {
+  background: var(--color-canvas);
+  color: var(--color-ink);
 }
 
 body::after {
@@ -27,18 +89,18 @@ body::after {
   inset: 0;
   z-index: 50;
   pointer-events: none;
-  opacity: 0.22;
+  opacity: var(--noise-opacity);
   mix-blend-mode: soft-light;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 ::selection {
-  background: var(--color-champagne);
-  color: var(--color-obsidian);
+  background: var(--color-accent);
+  color: var(--color-canvas);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-champagne);
+  outline: 2px solid var(--color-accent);
   outline-offset: 3px;
 }
 
@@ -50,7 +112,7 @@ body::after {
 }
 
 .eyebrow {
-  color: var(--color-champagne);
+  color: var(--color-accent);
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.16em;
@@ -67,10 +129,10 @@ body::after {
 .text-foil {
   padding-right: 0.08em;
   color: transparent;
-  background: linear-gradient(105deg, #c9a86a 10%, #f4efe6 42%, #c9a86a 58%, #8f7442 90%) 0 0 / 220% 100%;
+  background: var(--foil-text);
   background-clip: text;
   -webkit-background-clip: text;
-  animation: foil 9s ease-in-out infinite alternate;
+  animation: var(--foil-motion);
 }
 
 @keyframes foil {
@@ -80,13 +142,13 @@ body::after {
 }
 
 .shader-fallback {
-  background: radial-gradient(90% 90% at 70% 30%, rgb(201 168 106 / 0.22), transparent 70%);
+  background: radial-gradient(90% 90% at 70% 30%, var(--ambient-glow), transparent 70%);
 }
 
 .button {
   display: inline-flex;
   align-items: center;
-  border: 1px solid rgb(244 239 230 / 0.25);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 25%, transparent);
   border-radius: 999px;
   padding: 0.9rem 1.6rem;
   font-size: 0.9rem;
@@ -94,28 +156,30 @@ body::after {
   transition:
     transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
     background-position 0.7s ease,
+    opacity 0.5s ease,
     border-color 0.3s ease;
 }
 
 .button-ghost:hover {
-  border-color: var(--color-champagne);
+  border-color: var(--color-accent);
 }
 
 .button-foil {
   border-color: transparent;
-  color: var(--color-obsidian);
-  background: linear-gradient(105deg, #c9a86a 20%, #f4efe6 50%, #c9a86a 80%) 100% 0 / 240% 100%;
+  color: var(--primary-ink);
+  background: var(--primary-fill);
 }
 
 .button-foil:hover {
-  background-position: 0 0;
+  background-position: var(--primary-hover);
+  opacity: var(--primary-hover-opacity);
 }
 
 .chip {
-  border: 1px solid rgb(244 239 230 / 0.14);
+  border: 1px solid color-mix(in srgb, var(--color-ink) var(--hairline), transparent);
   border-radius: 999px;
   padding: 0.3rem 0.8rem;
-  color: rgb(244 239 230 / 0.75);
+  color: color-mix(in srgb, var(--color-ink) 75%, transparent);
   font-size: 0.8rem;
 }
 
@@ -126,14 +190,14 @@ body::after {
 
 .chip-button:hover,
 .chip-button[aria-pressed="true"] {
-  border-color: var(--color-champagne);
-  color: var(--color-champagne);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 .search {
   width: 100%;
   max-width: 20rem;
-  border: 1px solid rgb(244 239 230 / 0.14);
+  border: 1px solid color-mix(in srgb, var(--color-ink) var(--hairline), transparent);
   border-radius: 999px;
   background: transparent;
   padding: 0.6rem 1.1rem;
@@ -141,14 +205,126 @@ body::after {
 }
 
 .search::placeholder {
-  color: rgb(244 239 230 / 0.5);
+  color: color-mix(in srgb, var(--color-ink) 62%, transparent);
+}
+
+.theme-switch {
+  display: inline-flex;
+  gap: 0.15rem;
+  border: 1px solid color-mix(in srgb, var(--color-ink) var(--hairline), transparent);
+  border-radius: 999px;
+  padding: 0.15rem;
+}
+
+.theme-option {
+  display: inline-flex;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 0.3rem;
+  color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+  transition:
+    color 0.3s ease,
+    background 0.3s ease;
+}
+
+.theme-option:has(input:checked) {
+  background: color-mix(in srgb, var(--color-ink) 12%, transparent);
+  color: var(--color-ink);
+}
+
+.theme-option:has(input:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.theme-option svg {
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+
+.nav-link {
+  color: var(--color-ink);
+  transition: opacity 0.3s ease;
+}
+
+.nav-link:hover {
+  opacity: 0.6;
+}
+
+.nav-link[aria-current] {
+  color: var(--color-accent);
+}
+
+.command-hint {
+  cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--color-ink) var(--hairline), transparent);
+  border-radius: 0.4rem;
+  padding: 0.15rem 0.45rem;
+  color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+  font-size: 0.7rem;
+}
+
+.command-hint kbd {
+  font-family: inherit;
+}
+
+.command-menu {
+  width: min(92vw, 30rem);
+  margin: 18vh auto auto;
+  border: 1px solid color-mix(in srgb, var(--color-ink) var(--hairline), transparent);
+  border-radius: 1rem;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+.command-menu::backdrop {
+  background: color-mix(in srgb, var(--color-canvas) 60%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.command-input {
+  width: 100%;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ink) var(--hairline), transparent);
+  background: transparent;
+  padding: 0.95rem 1.1rem;
+  outline: none;
+}
+
+.command-input::placeholder {
+  color: color-mix(in srgb, var(--color-ink) 62%, transparent);
+}
+
+.command-list {
+  max-height: 22rem;
+  overflow-y: auto;
+  padding: 0.4rem;
+}
+
+.command-item {
+  cursor: pointer;
+  border-radius: 0.55rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.command-item[aria-selected="true"] {
+  background: color-mix(in srgb, var(--color-ink) 10%, transparent);
+}
+
+.command-empty {
+  padding: 0.75rem;
+  color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+  font-size: 0.9rem;
 }
 
 .job-input {
   display: block;
   width: 100%;
   resize: vertical;
-  border: 1px solid rgb(244 239 230 / 0.14);
+  border: 1px solid color-mix(in srgb, var(--color-ink) var(--hairline), transparent);
   border-radius: 1rem;
   background: transparent;
   padding: 0.9rem 1.1rem;
@@ -156,32 +332,33 @@ body::after {
 }
 
 .job-input::placeholder {
-  color: rgb(244 239 230 / 0.5);
+  color: color-mix(in srgb, var(--color-ink) 62%, transparent);
 }
 
 .link {
   display: inline-block;
   padding-block: 0.25rem;
-  color: var(--color-ivory);
+  color: var(--color-ink);
   font-size: 0.9rem;
   text-decoration: underline;
-  text-decoration-color: rgb(201 168 106 / 0.5);
+  text-decoration-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
   text-underline-offset: 5px;
   transition: color 0.25s ease;
 }
 
 .link:hover {
-  color: var(--color-champagne);
+  color: var(--color-accent);
 }
 
 .cursor {
+  display: var(--cursor-display);
   position: fixed;
   top: -14px;
   left: -14px;
   z-index: 60;
   width: 28px;
   height: 28px;
-  border: 1px solid var(--color-champagne);
+  border: 1px solid var(--color-accent);
   border-radius: 50%;
   opacity: 0;
   pointer-events: none;
@@ -192,7 +369,7 @@ body::after {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: var(--color-champagne);
+  background: var(--color-accent);
   opacity: 0;
   scale: 0.6;
   transition:
@@ -206,7 +383,7 @@ body::after {
 }
 
 .nav-bar {
-  background: rgb(10 10 11 / 0.8);
+  background: color-mix(in srgb, var(--color-canvas) 80%, transparent);
   backdrop-filter: blur(12px);
 }
 
@@ -227,10 +404,11 @@ body::after {
   left: clamp(1rem, 4vw, 3.5rem);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  border: 1px solid rgb(244 239 230 / 0.14);
+  align-items: flex-start;
+  gap: 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-ink) var(--hairline), transparent);
   border-radius: 1rem;
-  background: var(--color-obsidian);
+  background: var(--color-canvas);
   padding: 1.25rem 1.5rem;
 }
 
@@ -240,9 +418,9 @@ body::after {
   left: 0.75rem;
   z-index: 70;
   border-radius: 999px;
-  background: var(--color-champagne);
+  background: var(--color-accent);
   padding: 0.6rem 1.1rem;
-  color: var(--color-obsidian);
+  color: var(--color-canvas);
   font-size: 0.9rem;
   font-weight: 600;
   transform: translateY(-200%);

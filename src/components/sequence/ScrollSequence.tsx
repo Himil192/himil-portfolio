@@ -115,7 +115,7 @@ export default function ScrollSequence() {
 
   if (reduced) {
     return (
-      <section id="story" className="shell py-24">
+      <section id="story" data-theme="dark" className="shell py-24">
         <p className="eyebrow">Story</p>
         <h2 className="section-title">
           My <span className="text-foil italic">story</span>
@@ -133,7 +133,7 @@ export default function ScrollSequence() {
               <div key={chapter.kicker}>
                 <p className="eyebrow">{chapter.kicker}</p>
                 <h3 className="font-display mt-2 text-3xl">{chapter.title}</h3>
-                <p className="mt-2 text-ivory/70">{chapter.body}</p>
+                <p className="mt-2 text-ink/70">{chapter.body}</p>
               </div>
             ))}
           </div>
@@ -143,7 +143,7 @@ export default function ScrollSequence() {
   }
 
   return (
-    <section id="story" ref={section} className="relative h-[300vh]">
+    <section id="story" data-theme="dark" ref={section} className="relative h-[300vh]">
       <div className="sticky top-0 h-dvh w-full overflow-hidden">
         <canvas ref={canvas} className="absolute inset-0 h-full w-full" aria-hidden />
         <div className="shell relative flex h-full items-end pb-20 md:items-center md:pb-0">
@@ -161,7 +161,7 @@ export default function ScrollSequence() {
                 <h2 className="font-display mt-3 text-4xl leading-tight md:text-6xl">
                   {chapter.title}
                 </h2>
-                <p className="mt-4 text-ivory/70 md:text-lg">{chapter.body}</p>
+                <p className="mt-4 text-ink/70 md:text-lg">{chapter.body}</p>
               </div>
             ))}
           </div>
