@@ -5,8 +5,14 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { chapters } from "@/content/site";
-import { frameCount, frameUrl, nearestFrame, subscribeFrames } from "@/lib/frameStore";
-import { useReducedMotion } from "@/lib/hooks";
+import {
+  frameCount,
+  frameUrl,
+  nearestFrame,
+  startLoadingFrames,
+  subscribeFrames,
+} from "@/lib/frameStore";
+import { useInView, useReducedMotion } from "@/lib/hooks";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -23,6 +29,12 @@ export default function ScrollSequence() {
   const section = useRef<HTMLElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const chapterEls = useRef<(HTMLDivElement | null)[]>([]);
+  // Frames are the heaviest asset, so visitors who never get near the section skip them.
+  const near = useInView(section, "200% 0px");
+
+  useEffect(() => {
+    if (near) startLoadingFrames();
+  }, [near]);
 
   useEffect(() => {
     const element = canvas.current;
@@ -101,7 +113,11 @@ export default function ScrollSequence() {
   if (reduced) {
     return (
       <section id="story" className="shell py-24">
-        <div className="grid gap-12 md:grid-cols-2 md:items-center">
+        <p className="eyebrow">Story</p>
+        <h2 className="section-title">
+          How this site <span className="text-foil italic">was built</span>
+        </h2>
+        <div className="mt-12 grid gap-12 md:grid-cols-2 md:items-center">
           <Image
             src={frameUrl("desktop", 239)}
             alt="A monogram H formed from champagne particles"

@@ -5,7 +5,6 @@ import Credentials from "@/components/sections/Credentials";
 import Experience from "@/components/sections/Experience";
 import Nav from "@/components/sections/Nav";
 import Projects from "@/components/sections/Projects";
-import Preloader from "@/components/sequence/Preloader";
 import ScrollSequence from "@/components/sequence/ScrollSequence";
 import Cursor from "@/components/ui/Cursor";
 import Motion from "@/components/ui/Motion";
@@ -13,11 +12,13 @@ import Motion from "@/components/ui/Motion";
 export default function Home() {
   return (
     <>
-      <Preloader />
+      <a href="#main" className="skip-link">
+        Skip to content
+      </a>
       <Motion />
       <Cursor />
       <Nav />
-      <main>
+      <main id="main">
         <Hero />
         <ScrollSequence />
         <Experience />

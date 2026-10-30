@@ -1,4 +1,4 @@
-// Loads the scroll sequence outside React so the preloader and the player share one set of frames.
+// Loads the scroll sequence outside React so every player shares one set of frames.
 // Frames stay as Image elements: the browser can evict their decoded pixels under memory
 // pressure, whereas 240 ImageBitmaps at 1080p would pin about 2 GB.
 
@@ -9,7 +9,6 @@ const CONCURRENCY = 6;
 let set: keyof typeof COUNTS = "desktop";
 let frames: (HTMLImageElement | undefined)[] = [];
 let started = false;
-let keyProgress = 0;
 const listeners = new Set<() => void>();
 
 const notify = () => listeners.forEach((listener) => listener());
@@ -18,7 +17,6 @@ export const frameUrl = (name: keyof typeof COUNTS, index: number) =>
   `/frames/${name}/${String(index + 1).padStart(4, "0")}.webp`;
 
 export const frameCount = () => COUNTS[set];
-export const getKeyProgress = () => keyProgress;
 
 export function subscribeFrames(listener: () => void) {
   listeners.add(listener);
@@ -38,20 +36,20 @@ async function loadFrame(index: number) {
   }
 }
 
-async function loadAll(indices: number[], onEach?: (done: number) => void) {
+async function loadAll(indices: number[]) {
   let next = 0;
-  let done = 0;
   const worker = async () => {
     while (next < indices.length) {
       await loadFrame(indices[next++]);
-      onEach?.(++done);
+      notify();
     }
   };
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 }
 
-export async function startLoadingFrames(keyFramesOnly: boolean) {
-  if (started) return;
+export async function startLoadingFrames() {
+  // Read directly: on the first render after hydration the reduced motion hook still reports false.
+  if (started || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   started = true;
   set = window.matchMedia("(max-aspect-ratio: 1/1)").matches ? "mobile" : "desktop";
   const total = COUNTS[set];
@@ -59,16 +57,10 @@ export async function startLoadingFrames(keyFramesOnly: boolean) {
 
   const all = Array.from({ length: total }, (_, index) => index);
   // Sparse frames first, so scrubbing works before the full sequence has arrived.
-  const keys = all.filter((index) => index % KEY_STEP === 0 || index === total - 1);
-  await loadAll(keys, (done) => {
-    keyProgress = done / keys.length;
-    notify();
-  });
-  if (keyFramesOnly) return;
-  await loadAll(
-    all.filter((index) => !frames[index]),
-    notify,
-  );
+  await loadAll(all.filter((index) => index % KEY_STEP === 0 || index === total - 1));
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+  if (connection?.saveData) return;
+  await loadAll(all.filter((index) => !frames[index]));
 }
 
 export function nearestFrame(index: number) {
