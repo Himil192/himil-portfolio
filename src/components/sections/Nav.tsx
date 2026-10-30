@@ -29,39 +29,39 @@ export default function Nav() {
   return (
     <header className="nav-bar fixed inset-x-0 top-0 z-40">
       <div className="shell relative flex items-center justify-between py-5">
-      <a href="#top" className="font-display text-2xl" aria-label="Back to top">
-        HP
-      </a>
-      <div className="hidden items-center gap-7 lg:flex">
-        <nav aria-label="Primary" className="flex gap-7">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              aria-current={active === link.href ? "true" : undefined}
-              className="nav-link eyebrow"
-            >
-              {link.label}
-            </a>
-          ))}
-        </nav>
-        <CommandMenu />
-        <ThemeSwitch name="theme-desktop" />
-      </div>
-      {/* A details element, so the menu still opens if JavaScript never runs. */}
-      <details ref={menu} onKeyDown={closeOnEscape} className="lg:hidden">
-        <summary className="nav-toggle eyebrow !text-ink">Menu</summary>
-        <div className="nav-panel">
-          <nav aria-label="Mobile" onClick={close} className="flex flex-col gap-3">
+        <a href="#top" className="font-display text-2xl" aria-label="Back to top">
+          HP
+        </a>
+        <div className="hidden items-center gap-7 lg:flex">
+          <nav aria-label="Primary" className="flex gap-7">
             {navLinks.map((link) => (
-              <a key={link.href} href={link.href} className="font-display text-3xl">
+              <a
+                key={link.href}
+                href={link.href}
+                aria-current={active === link.href ? "true" : undefined}
+                className="nav-link eyebrow"
+              >
                 {link.label}
               </a>
             ))}
           </nav>
-          <ThemeSwitch name="theme-mobile" />
+          <CommandMenu />
+          <ThemeSwitch name="theme-desktop" />
         </div>
-      </details>
+        {/* A details element, so the menu still opens if JavaScript never runs. */}
+        <details ref={menu} onKeyDown={closeOnEscape} className="lg:hidden">
+          <summary className="nav-toggle eyebrow !text-ink">Menu</summary>
+          <div className="nav-panel">
+            <nav aria-label="Mobile" onClick={close} className="flex flex-col gap-3">
+              {navLinks.map((link) => (
+                <a key={link.href} href={link.href} className="font-display text-3xl">
+                  {link.label}
+                </a>
+              ))}
+            </nav>
+            <ThemeSwitch name="theme-mobile" />
+          </div>
+        </details>
       </div>
     </header>
   );
