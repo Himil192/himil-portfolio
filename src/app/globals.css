@@ -484,6 +484,41 @@ body::after {
   transform: none;
 }
 
+/* Theme change: a picture of the old page is cut away under the gold ring. */
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-group(root),
+::view-transition-image-pair(root),
+::view-transition-group(liquid-gold),
+::view-transition-new(liquid-gold) {
+  animation: none;
+}
+
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+  mix-blend-mode: normal;
+  mask-image: radial-gradient(
+    circle at var(--reveal-x, 50%) var(--reveal-y, 50%),
+    transparent var(--reveal-r, 0),
+    #000 calc(var(--reveal-r, 0px) + 2px)
+  );
+  /* Holds the transition open; the script ends it when the ring has passed. */
+  animation: theme-hold 10s linear;
+}
+
+@keyframes theme-hold {
+  to {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .text-foil {
     animation: none;

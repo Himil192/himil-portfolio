@@ -57,7 +57,7 @@ export const getDisplayedChoice = () => pouring ?? getThemeChoice();
 const notify = () => listeners.forEach((listener) => listener());
 
 export function changeTheme(choice: ThemeChoice, origin?: { x: number; y: number }) {
-  // A click during a pour only updates where it ends.
+  // A click during a pour runs as soon as this one ends.
   if (pouring) {
     pouring = choice;
     notify();
@@ -75,11 +75,11 @@ export function changeTheme(choice: ThemeChoice, origin?: { x: number; y: number
   const started = pourGold(
     resolve(choice),
     origin ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 },
-    () => setThemeChoice(pouring ?? choice),
+    () => setThemeChoice(choice),
     () => {
       const last = pouring;
       pouring = undefined;
-      if (last && last !== getThemeChoice()) setThemeChoice(last);
+      if (last && last !== getThemeChoice()) changeTheme(last, origin);
       else notify();
     },
   );

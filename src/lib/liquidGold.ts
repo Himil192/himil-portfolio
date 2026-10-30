@@ -1,15 +1,18 @@
-import { liquidClock, liquidPattern, SHADER_PAUSE } from "@/shaders";
+import { liquidClock, liquidPattern } from "@/shaders";
 import type { ResolvedTheme } from "./theme";
 
-// The theme change grows out of the dark hero's liquid: a temporary full-screen canvas
-// uses that same pattern as an animated mask, so the two themes meet along its curves.
+// The theme change is a ring of molten gold shaped by the dark hero's liquid. The real new page
+// runs behind it, and a picture of the old page is cut away under the ring, so nothing is blank.
 // It is prepared once and reused, because compiling on a click makes the page stall.
 
-const SPREAD_MS = 1450;
-const HOLD_MS = 120;
-const FADE_MS = 420;
-const SETTLE_FRAMES = 3;
+const DURATION_MS = 750;
 const RENDER_SCALE = 0.6;
+// All in units of the screen's short side. The band must cover twice the wobble,
+// or the cut in the old page would show past the gold.
+const WOBBLE = 0.05;
+const CUT_MARGIN = 0.008;
+const BAND = WOBBLE * 2 + CUT_MARGIN * 2.5;
+const OVERSHOOT = BAND + WOBBLE + 0.1;
 
 const vertex = /* glsl */ `
   attribute vec2 aPosition;
@@ -22,19 +25,14 @@ const vertex = /* glsl */ `
 
 const fragment = /* glsl */ `
   precision highp float;
-  uniform float uProgress;
-  uniform float uFade;
+  uniform float uFront;
   uniform float uTime;
   uniform float uToDark;
   uniform vec2 uOrigin;
-  uniform float uReach;
   uniform vec2 uResolution;
   varying vec2 vUv;
 
-  const vec3 OBSIDIAN = vec3(0.039, 0.039, 0.043);
   const vec3 GOLD = vec3(0.788, 0.659, 0.416);
-  const vec3 IVORY = vec3(0.957, 0.937, 0.902);
-  const vec3 PAPER = vec3(0.984, 0.98, 0.973);
 
   ${liquidPattern}
 
@@ -58,45 +56,34 @@ const fragment = /* glsl */ `
     float band = pow(0.5 + 0.5 * sin(bandRay.x * 3.0 + bandRay.y * 2.0 + h * 3.0), 4.0);
 
     // Travels outward from the click, with the liquid's curves bending the front.
-    float liquid = 1.0 - (pow(band, 0.32) * 0.72 + clamp(h * 0.5, 0.0, 1.0) * 0.28);
+    float liquid = pow(band, 0.32) * 0.72 + clamp(h * 0.5, 0.0, 1.0) * 0.28;
     vec2 away = p - uOrigin;
-    float reach = length(away) / uReach * 0.72 + liquid * 0.28;
-    float behind = uProgress * 1.42 - 0.05 - reach;
+    float behind = uFront + (liquid * 2.0 - 1.0) * ${WOBBLE.toFixed(3)} - length(away);
 
-    float filled = smoothstep(0.0, 0.012, behind);
-    float width = 0.085;
-    float rim = smoothstep(-0.004, 0.006, behind) * (1.0 - smoothstep(width * 0.7, width * 1.5, behind));
+    float solid = ${BAND.toFixed(3)};
+    float edge = smoothstep(-0.003, 0.003, behind);
+    float rim = edge * (1.0 - smoothstep(solid, solid + 0.06, behind));
 
     // The molten band: its surface rolls over the front, lit like the hero's metal.
     vec3 normal = vec3(slopeX, slopeY, e * 1.2);
-    normal.xy += normalize(away + 0.0001) * (0.5 - behind / (width * 1.5)) * 0.05;
+    normal.xy += normalize(away + 0.0001) * (0.5 - behind / solid) * 0.05;
     normal = normalize(normal);
     vec3 reflected = reflect(vec3(0.0, 0.0, -1.0), normal);
     vec3 molten = metal(0.5 + 0.5 * sin(reflected.y * 2.6 + reflected.x * 1.5 + uTime * 1.4));
     float glint = pow(max(dot(normal, normalize(vec3(0.35, 0.55, 0.76))), 0.0), 36.0);
     molten += vec3(1.0, 0.94, 0.8) * glint * 0.6;
 
-    // The new theme glows just behind the front, then calms down.
-    float settle = (1.0 - smoothstep(0.0, 0.4, behind)) * filled;
-    vec3 dark = mix(OBSIDIAN, GOLD * 0.62, band) + IVORY * pow(band, 12.0) * 0.4;
-    dark += GOLD * settle * 0.2;
-    vec3 paper = mix(PAPER, vec3(1.0, 0.95, 0.84), settle * 0.7);
-    vec3 target = mix(paper, dark, uToDark);
-
-    // Ahead of the front: a soft shadow on the light page, a warm glow on the dark one.
-    float ahead = (1.0 - smoothstep(0.0, 0.06, -behind)) * (1.0 - filled);
+    // Ahead of the front: a soft shadow on a light page, a warm glow on a dark one.
+    float ahead = (1.0 - smoothstep(0.0, 0.06, -behind)) * (1.0 - edge);
     vec3 aura = mix(GOLD, vec3(0.0), uToDark);
     float auraAlpha = ahead * mix(0.5, 0.26, uToDark);
 
-    float alpha = max(max(filled, rim), auraAlpha);
-    vec3 color = mix(aura, target, filled);
-    color = mix(color, molten, rim);
-    gl_FragColor = vec4(color, alpha * uFade);
+    gl_FragColor = vec4(mix(aura, molten, edge), max(rim, auraAlpha));
   }
 `;
 
 // A quick burst that slows as it spreads, like heavy liquid losing momentum.
-const ease = (t: number) => 1 - (1 - t) ** 2.4;
+const ease = (t: number) => 1 - (1 - t) ** 2.2;
 
 function compile(gl: WebGLRenderingContext, type: number, source: string) {
   const shader = gl.createShader(type);
@@ -125,7 +112,8 @@ function build() {
 
   canvas.className = "liquid-gold";
   canvas.setAttribute("aria-hidden", "true");
-  canvas.style.cssText = "position:fixed;inset:0;z-index:100;width:100%;height:100%;pointer-events:none";
+  canvas.style.cssText =
+    "position:fixed;inset:0;z-index:100;width:100%;height:100%;pointer-events:none;view-transition-name:liquid-gold";
 
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
@@ -138,9 +126,7 @@ function build() {
     resolution: uniform("uResolution"),
     toDark: uniform("uToDark"),
     origin: uniform("uOrigin"),
-    reach: uniform("uReach"),
-    progress: uniform("uProgress"),
-    fade: uniform("uFade"),
+    front: uniform("uFront"),
     time: uniform("uTime"),
   };
 
@@ -159,18 +145,15 @@ const ready = () => {
 // Run in idle time, so the first click has no setup to wait for.
 export const prepareGold = () => void ready();
 
-const pauseShaders = (paused: boolean) =>
-  window.dispatchEvent(new CustomEvent(SHADER_PAUSE, { detail: paused }));
-
-// Returns false when WebGL is unavailable, so the caller can change theme instantly.
+// Returns false when the effect cannot run, so the caller can change theme instantly.
 export function pourGold(
   target: ResolvedTheme,
   origin: { x: number; y: number },
-  onCovered: () => void,
+  swap: () => void,
   onDone: () => void,
 ) {
   const pour = ready();
-  if (!pour) return false;
+  if (!pour || !document.startViewTransition) return false;
   const { canvas, gl, uniforms } = pour;
 
   // Liquid is soft, so it upscales well and frees the graphics card to hold its frame rate.
@@ -182,66 +165,58 @@ export function pourGold(
   gl.uniform1f(uniforms.toDark, target === "dark" ? 1 : 0);
 
   const short = Math.min(window.innerWidth, window.innerHeight);
-  const toLiquid = (x: number, y: number) => [
-    (x * 2 - window.innerWidth) / short / 2,
-    (window.innerHeight - y * 2) / short / 2,
-  ];
-  const [originX, originY] = toLiquid(origin.x, origin.y);
-  const reach = Math.max(
+  const originX = (origin.x * 2 - window.innerWidth) / short / 2;
+  const originY = (window.innerHeight - origin.y * 2) / short / 2;
+  gl.uniform2f(uniforms.origin, originX, originY);
+
+  const farthest = Math.max(
     ...[
       [0, 0],
       [window.innerWidth, 0],
       [0, window.innerHeight],
       [window.innerWidth, window.innerHeight],
-    ].map(([x, y]) => {
-      const [cornerX, cornerY] = toLiquid(x, y);
-      return Math.hypot(cornerX - originX, cornerY - originY);
-    }),
+    ].map(([x, y]) => Math.hypot(x - origin.x, y - origin.y) / short),
   );
-  gl.uniform2f(uniforms.origin, originX, originY);
-  gl.uniform1f(uniforms.reach, reach);
 
-  document.body.append(canvas);
-  pauseShaders(true);
+  const { style } = document.documentElement;
+  const setCut = (radius: number) => style.setProperty("--reveal-r", `${radius}px`);
+  style.setProperty("--reveal-x", `${origin.x}px`);
+  style.setProperty("--reveal-y", `${origin.y}px`);
+  setCut(0);
+  gl.clearColor(0, 0, 0, 0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  const transition = document.startViewTransition(() => {
+    swap();
+    document.body.append(canvas);
+  });
 
   const clockStart = liquidClock.time;
   let start: number | undefined;
-  let covered = false;
-  let settledFrames = 0;
-  let fadeStart: number | undefined;
 
   const draw = (now: number) => {
     // Timed from the first drawn frame, so the opening burst is never skipped.
     start ??= now;
-    const elapsed = now - start;
-    // Keeps the hero in step, so its liquid matches this one when the canvas fades away.
-    liquidClock.time = clockStart + elapsed / 1000;
+    const progress = Math.min((now - start) / DURATION_MS, 1);
+    const front = ease(progress) * (farthest + OVERSHOOT);
 
-    if (!covered && elapsed >= SPREAD_MS) {
-      covered = true;
-      pauseShaders(false);
-      onCovered();
-    }
-    // The swap restyles the page and may compile a shader, so the fade waits for it to finish.
-    if (covered && fadeStart === undefined && ++settledFrames >= SETTLE_FRAMES) {
-      fadeStart = now + HOLD_MS;
-    }
-
-    const faded = fadeStart === undefined ? 0 : Math.max(0, (now - fadeStart) / FADE_MS);
-    gl.clearColor(0, 0, 0, 0);
+    setCut(Math.max(0, (front - WOBBLE - CUT_MARGIN) * short));
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.uniform1f(uniforms.progress, ease(Math.min(elapsed / SPREAD_MS, 1)));
-    gl.uniform1f(uniforms.fade, 1 - Math.min(faded, 1));
-    gl.uniform1f(uniforms.time, liquidClock.time);
+    gl.uniform1f(uniforms.front, front);
+    gl.uniform1f(uniforms.time, clockStart + (now - start) / 1000);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 
-    if (faded < 1) {
-      requestAnimationFrame(draw);
-      return;
-    }
-    canvas.remove();
-    onDone();
+    if (progress < 1) requestAnimationFrame(draw);
+    else transition.skipTransition();
   };
-  requestAnimationFrame(draw);
+
+  transition.ready.then(() => requestAnimationFrame(draw)).catch(() => undefined);
+  transition.finished
+    .catch(() => undefined)
+    .finally(() => {
+      canvas.remove();
+      ["--reveal-x", "--reveal-y", "--reveal-r"].forEach((name) => style.removeProperty(name));
+      onDone();
+    });
   return true;
 }
