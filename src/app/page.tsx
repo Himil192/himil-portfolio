@@ -20,11 +20,11 @@ export default function Home() {
       <Nav />
       <main id="main">
         <Hero />
-        <ScrollSequence />
         <Experience />
         <Projects />
-        <Playground />
         <Credentials />
+        <ScrollSequence />
+        <Playground />
       </main>
       <Contact />
     </>

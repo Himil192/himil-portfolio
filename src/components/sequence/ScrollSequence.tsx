@@ -140,7 +140,7 @@ export default function ScrollSequence() {
   }
 
   return (
-    <section id="story" ref={section} className="relative h-[520vh]">
+    <section id="story" ref={section} className="relative h-[300vh]">
       <div className="sticky top-0 h-dvh w-full overflow-hidden">
         <canvas ref={canvas} className="absolute inset-0 h-full w-full" aria-hidden />
         <div className="shell relative flex h-full items-end pb-20 md:items-center md:pb-0">

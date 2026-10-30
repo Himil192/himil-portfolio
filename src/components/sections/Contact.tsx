@@ -18,7 +18,7 @@ export default function Contact() {
           <MagneticButton href={`mailto:${site.email}`} variant="foil">
             {site.email}
           </MagneticButton>
-          <MagneticButton href={site.resume} download>
+          <MagneticButton href={site.resume} download={site.resumeFilename}>
             Download resume
           </MagneticButton>
         </div>
