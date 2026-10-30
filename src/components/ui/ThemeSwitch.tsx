@@ -33,7 +33,13 @@ export default function ThemeSwitch({ name }: { name: string }) {
             name={name}
             value={option}
             checked={choice === option}
-            onChange={() => changeTheme(option)}
+            onChange={(event) => {
+              const button = event.currentTarget.parentElement?.getBoundingClientRect();
+              changeTheme(
+                option,
+                button && { x: button.left + button.width / 2, y: button.top + button.height / 2 },
+              );
+            }}
             className="sr-only"
           />
           <span className="sr-only">{option}</span>
