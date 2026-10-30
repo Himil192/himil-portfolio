@@ -139,21 +139,6 @@ export const otherProjects = [
     note: "WordPress website and portfolio for a client",
     links: [{ label: "Live site", href: "https://karolinakobialka.pl/" }],
   },
-  {
-    title: "JavaScript DOM Projects",
-    note: "Browser projects built without a framework",
-    links: [
-      { label: "Live demo", href: "https://stackblitz.com/edit/dom-project-chaiaurcode-zq1kdwzu" },
-      { label: "Source", href: "https://github.com/Himil192/javascript-projects-DOM-" },
-    ],
-  },
-  {
-    title: "College ERP",
-    note: "College management system in Django and Python",
-    links: [
-      { label: "Source", href: "https://github.com/Himil192/ERP-College-management-system-using-Django" },
-    ],
-  },
 ];
 
 export const skills = [
