@@ -11,7 +11,7 @@ export default function Hero() {
         <p className="eyebrow">
           {site.role} / {site.location} / {site.availability}
         </p>
-        <h1 className="font-display mt-5 text-[17vw] leading-[0.92] md:text-[11.5vw]">
+        <h1 className="font-display mt-5 text-[17vw] leading-[0.92] md:text-[min(11.5vw,14rem)]">
           Himil <span className="text-foil italic">Prajapati</span>
         </h1>
         <div className="mt-8 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">

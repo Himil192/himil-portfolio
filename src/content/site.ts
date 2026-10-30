@@ -272,6 +272,11 @@ export const matchSkills = [
     evidence: "Integrated reusable UI components with backend APIs at Cognihive.",
   },
   {
+    name: "Accessibility",
+    aliases: ["accessibility", "accessible", "a11y", "wcag"],
+    evidence: "Built this site with keyboard support, screen reader labels, and reduced-motion handling.",
+  },
+  {
     name: "Firebase",
     aliases: ["firebase", "firestore"],
     evidence: "Used Firebase Hosting, Authentication, and Firestore for TerraBloom.",

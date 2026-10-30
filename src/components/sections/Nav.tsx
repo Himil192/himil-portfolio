@@ -27,11 +27,12 @@ export default function Nav() {
   }, []);
 
   return (
-    <header className="nav-bar shell fixed inset-x-0 top-0 z-40 flex items-center justify-between py-5">
+    <header className="nav-bar fixed inset-x-0 top-0 z-40">
+      <div className="shell relative flex items-center justify-between py-5">
       <a href="#top" className="font-display text-2xl" aria-label="Back to top">
         HP
       </a>
-      <div className="hidden items-center gap-7 md:flex">
+      <div className="hidden items-center gap-7 lg:flex">
         <nav aria-label="Primary" className="flex gap-7">
           {navLinks.map((link) => (
             <a
@@ -48,7 +49,7 @@ export default function Nav() {
         <ThemeSwitch name="theme-desktop" />
       </div>
       {/* A details element, so the menu still opens if JavaScript never runs. */}
-      <details ref={menu} onKeyDown={closeOnEscape} className="md:hidden">
+      <details ref={menu} onKeyDown={closeOnEscape} className="lg:hidden">
         <summary className="nav-toggle eyebrow !text-ink">Menu</summary>
         <div className="nav-panel">
           <nav aria-label="Mobile" onClick={close} className="flex flex-col gap-3">
@@ -61,6 +62,7 @@ export default function Nav() {
           <ThemeSwitch name="theme-mobile" />
         </div>
       </details>
+      </div>
     </header>
   );
 }
