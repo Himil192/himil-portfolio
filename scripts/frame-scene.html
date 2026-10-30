@@ -66,6 +66,22 @@
         }
       `;
 
+      const SHAPE = /* glsl */ `
+        uniform float uMelt;
+        uniform float uTime;
+        vec3 liquid(vec3 d){
+          float n=snoise(d*1.05+vec3(0.,uTime,uTime*.6))*.34+snoise(d*2.1-vec3(uTime*.8))*.05;
+          return d*(1.+n);
+        }
+        vec3 monolith(vec3 d){
+          vec3 s=vec3(.62,1.3,.62);
+          vec3 a=abs(d)/s;
+          float k=pow(pow(a.x,8.)+pow(a.y,8.)+pow(a.z,8.),1./8.);
+          return d/k;
+        }
+        vec3 shape(vec3 d){return mix(monolith(d),liquid(d),uMelt);}
+      `;
+
       const scene = new THREE.Scene();
       scene.background = OBSIDIAN;
 
@@ -80,9 +96,77 @@
       const group = new THREE.Group();
       // Leaves the left of landscape frames clear for the chapter text.
       group.position.set(portrait ? 0 : 0.95, portrait ? 0.55 : 0, 0);
-      // Tall phones crop the sides of portrait frames, so the shapes need margin.
-      group.scale.setScalar(portrait ? 0.8 : 1);
       scene.add(group);
+
+      const uniforms = {
+        uMelt: { value: 0 },
+        uTime: { value: 0 },
+        uGold: { value: 0 },
+        uDissolve: { value: 0 },
+      };
+
+      const form = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(1, 110),
+        new THREE.ShaderMaterial({
+          uniforms,
+          vertexShader: /* glsl */ `
+            ${NOISE}
+            ${SHAPE}
+            varying vec3 vNormal;
+            varying vec3 vView;
+            varying vec3 vDir;
+            void main(){
+              vec3 d=normalize(position);
+              vec3 p=shape(d);
+              vec3 a=normalize(cross(d,vec3(.13,1.,.21)));
+              vec3 b=cross(d,a);
+              float e=.012;
+              vec3 pa=shape(normalize(d+a*e));
+              vec3 pb=shape(normalize(d+b*e));
+              vec3 n=normalize(cross(pa-p,pb-p));
+              if(dot(n,p)<0.)n=-n;
+              vec4 mv=modelViewMatrix*vec4(p,1.);
+              vNormal=normalize(normalMatrix*n);
+              vView=normalize(-mv.xyz);
+              vDir=d;
+              gl_Position=projectionMatrix*mv;
+            }
+          `,
+          fragmentShader: /* glsl */ `
+            ${NOISE}
+            uniform float uGold;
+            uniform float uDissolve;
+            varying vec3 vNormal;
+            varying vec3 vView;
+            varying vec3 vDir;
+            vec3 env(vec3 r){
+              vec3 c=mix(vec3(.006),vec3(.1,.085,.065),smoothstep(-1.,1.,r.y));
+              c+=vec3(1.,.93,.82)*3.2*smoothstep(.78,.97,dot(r,normalize(vec3(.55,.62,.56))));
+              c+=vec3(.9,.8,.65)*.9*smoothstep(.86,.98,dot(r,normalize(vec3(-.8,.1,.5))));
+              c+=vec3(.8,.72,.6)*.55*pow(.5+.5*sin(r.y*8.+r.x*3.),10.);
+              return c;
+            }
+            void main(){
+              float cut=snoise(vDir*2.6)*.5+.5;
+              float edge=uDissolve*1.15-.08;
+              if(cut<edge)discard;
+              vec3 n=normalize(vNormal);
+              vec3 v=normalize(vView);
+              vec3 r=reflect(-v,n);
+              float f=pow(1.-max(dot(n,v),0.),4.);
+              vec3 e=env(r);
+              vec3 champagne=vec3(.88,.64,.3);
+              vec3 obsidian=e*vec3(.14)+champagne*f*1.5;
+              vec3 metal=e*champagne*1.7+vec3(.5,.33,.12)*.1+champagne*f*.9;
+              vec3 col=mix(obsidian,metal,uGold);
+              col+=champagne*4.*smoothstep(.06,0.,cut-edge)*step(.001,uDissolve);
+              col=col/(1.+col*.72);
+              gl_FragColor=vec4(pow(col,vec3(1./2.2)),1.);
+            }
+          `,
+        }),
+      );
+      group.add(form);
 
       // Seeded so every render of the sequence places particles identically.
       let seed = 1921;
@@ -91,99 +175,42 @@
         return seed / 4294967296;
       };
 
-      const rect = (x, y, w, h) => ({ x, y, w, h });
-      const outline = (x, y, w, h, t = 0.025) => [
-        rect(x, y + h / 2, w, t),
-        rect(x, y - h / 2, w, t),
-        rect(x - w / 2, y, t, h),
-        rect(x + w / 2, y, t, h),
+      const COUNT = 70000;
+      const directions = new Float32Array(COUNT * 3);
+      const targets = new Float32Array(COUNT * 3);
+      const seeds = new Float32Array(COUNT);
+      const bars = [
+        { x: -0.62, w: 0.3, y: 0, h: 2.3 },
+        { x: 0.62, w: 0.3, y: 0, h: 2.3 },
+        { x: 0, w: 0.96, y: 0, h: 0.28 },
       ];
-
-      // Rows of tokens, indented like source code.
-      const code = [];
-      [
-        [0, 0.5, 0.3, 0.42],
-        [1, 0.34, 0.62],
-        [2, 0.28, 0.46, 0.2],
-        [2, 0.5, 0.34],
-        [3, 0.22, 0.6],
-        [2, 0.38, 0.3, 0.26],
-        [1, 0.16],
-        [1, 0.44, 0.52],
-        [0, 0.12],
-      ].forEach(([indent, ...tokens], row) => {
-        let x = -1.22 + indent * 0.24;
-        for (const width of tokens) {
-          code.push(rect(x + width / 2, 0.96 - row * 0.24, width, 0.075));
-          x += width + 0.07;
-        }
-      });
-
-      // Four cards, each with a title and lines of content.
-      const cards = [];
-      for (const [x, y] of [
-        [-0.64, 0.5],
-        [0.64, 0.5],
-        [-0.64, -0.5],
-        [0.64, -0.5],
-      ]) {
-        cards.push(
-          ...outline(x, y, 1.14, 0.86),
-          rect(x - 0.16, y + 0.24, 0.62, 0.09),
-          rect(x, y + 0.02, 0.9, 0.04),
-          rect(x - 0.1, y - 0.1, 0.7, 0.04),
-          rect(x - 0.32, y - 0.26, 0.26, 0.08),
+      for (let i = 0; i < COUNT; i++) {
+        const z = rand() * 2 - 1;
+        const angle = rand() * Math.PI * 2;
+        const radius = Math.sqrt(1 - z * z);
+        directions.set([radius * Math.cos(angle), radius * Math.sin(angle), z], i * 3);
+        const bar = bars[i % 10 < 4 ? 0 : i % 10 < 8 ? 1 : 2];
+        targets.set(
+          [
+            bar.x + (rand() - 0.5) * bar.w,
+            bar.y + (rand() - 0.5) * bar.h,
+            (rand() - 0.5) * 0.22,
+          ],
+          i * 3,
         );
+        seeds[i] = rand();
       }
 
-      // A browser window holding a page.
-      const browser = [
-        ...outline(0, 0, 2.6, 2.1, 0.03),
-        rect(0, 0.76, 2.6, 0.02),
-        rect(-1.16, 0.91, 0.07, 0.07),
-        rect(-1.04, 0.91, 0.07, 0.07),
-        rect(-0.92, 0.91, 0.07, 0.07),
-        rect(0.2, 0.91, 1.3, 0.06),
-        rect(-0.6, 0.48, 1.0, 0.16),
-        rect(-0.72, 0.24, 0.76, 0.05),
-        rect(-0.92, 0.04, 0.36, 0.11),
-        ...outline(0.72, 0.32, 0.86, 0.68),
-        ...outline(-0.84, -0.6, 0.68, 0.56),
-        ...outline(0, -0.6, 0.68, 0.56),
-        ...outline(0.84, -0.6, 0.68, 0.56),
-      ];
-
-      const monogram = [rect(-0.62, 0, 0.3, 2.3), rect(0.62, 0, 0.3, 2.3), rect(0, 0, 0.96, 0.28)];
-
-      const COUNT = 70000;
-      const place = (rects, depth) => {
-        const total = rects.reduce((sum, r) => sum + r.w * r.h, 0);
-        const points = new Float32Array(COUNT * 3);
-        for (let i = 0; i < COUNT; i++) {
-          let pick = rand() * total;
-          const r = rects.find((candidate) => (pick -= candidate.w * candidate.h) <= 0) ?? rects[0];
-          points.set(
-            [r.x + (rand() - 0.5) * r.w, r.y + (rand() - 0.5) * r.h, (rand() - 0.5) * depth],
-            i * 3,
-          );
-        }
-        return new THREE.BufferAttribute(points, 3);
-      };
-
-      const seeds = new Float32Array(COUNT);
-      for (let i = 0; i < COUNT; i++) seeds[i] = rand();
-
       const dust = new THREE.BufferGeometry();
-      dust.setAttribute("position", place(code, 0.05));
-      dust.setAttribute("aCards", place(cards, 0.05));
-      dust.setAttribute("aBrowser", place(browser, 0.05));
-      dust.setAttribute("aMonogram", place(monogram, 0.22));
+      dust.setAttribute("position", new THREE.BufferAttribute(directions, 3));
+      dust.setAttribute("aTarget", new THREE.BufferAttribute(targets, 3));
       dust.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
 
       const dustUniforms = {
-        uStep: { value: 0 },
-        uDrift: { value: 0 },
-        uTime: { value: 0 },
+        uMelt: uniforms.uMelt,
+        uTime: uniforms.uTime,
+        uForm: { value: 0 },
+        uShow: { value: 0 },
         uSize: { value: (HEIGHT / 1080) * (portrait ? 3.4 : 3.2) },
       };
       const points = new THREE.Points(
@@ -195,26 +222,21 @@
           blending: THREE.AdditiveBlending,
           vertexShader: /* glsl */ `
             ${NOISE}
-            attribute vec3 aCards;
-            attribute vec3 aBrowser;
-            attribute vec3 aMonogram;
+            ${SHAPE}
+            attribute vec3 aTarget;
             attribute float aSeed;
-            uniform float uStep;
-            uniform float uDrift;
-            uniform float uTime;
+            uniform float uForm;
             uniform float uSize;
             varying float vSeed;
             void main(){
-              float stage=min(floor(uStep),2.);
-              vec3 from=stage<.5?position:stage<1.5?aCards:aBrowser;
-              vec3 to=stage<.5?aCards:stage<1.5?aBrowser:aMonogram;
-              float t=smoothstep(aSeed*.45,aSeed*.45+.55,uStep-stage);
-              vec3 p=mix(from,to,t);
-              vec3 wander=vec3(
+              float t=smoothstep(aSeed*.45,aSeed*.45+.55,uForm);
+              vec3 from=liquid(normalize(position));
+              vec3 p=mix(from,aTarget,t);
+              float swirl=sin(t*3.14159);
+              p+=swirl*.5*vec3(
                 snoise(position*2.+vec3(uTime)),
                 snoise(position*2.+vec3(4.,uTime,1.)),
                 snoise(position*2.+vec3(9.,2.,uTime)));
-              p+=wander*(sin(t*3.14159)*.42+uDrift*.012);
               vec4 mv=modelViewMatrix*vec4(p,1.);
               gl_PointSize=uSize*(6.4/-mv.z)*(.55+aSeed*.7);
               vSeed=aSeed;
@@ -222,11 +244,12 @@
             }
           `,
           fragmentShader: /* glsl */ `
+            uniform float uShow;
             varying float vSeed;
             void main(){
               float a=smoothstep(.5,.1,length(gl_PointCoord-.5));
               vec3 col=mix(vec3(.85,.66,.34),vec3(.96,.9,.78),vSeed*vSeed);
-              gl_FragColor=vec4(col,a*.42);
+              gl_FragColor=vec4(col,a*uShow*.42);
             }
           `,
         }),
@@ -239,14 +262,17 @@
       };
 
       window.renderFrame = (progress) => {
-        // Each change happens in the gap between two chapters' text.
-        dustUniforms.uStep.value =
-          smooth(0.17, 0.3, progress) + smooth(0.45, 0.58, progress) + smooth(0.71, 0.86, progress);
-        dustUniforms.uTime.value = progress * 2.4;
-        const settle = 1 - smooth(0.82, 0.95, progress);
-        dustUniforms.uDrift.value = settle;
+        uniforms.uTime.value = progress * 2.4;
+        uniforms.uMelt.value = smooth(0.18, 0.46, progress);
+        uniforms.uGold.value = smooth(0.2, 0.5, progress);
+        uniforms.uDissolve.value = smooth(0.6, 0.8, progress);
+        dustUniforms.uForm.value = smooth(0.64, 0.95, progress);
+        dustUniforms.uShow.value = smooth(0.6, 0.7, progress);
+
+        form.visible = uniforms.uDissolve.value < 1;
+        form.rotation.set(0.14 * Math.sin(progress * 6), progress * 4.2 + 0.5, 0);
         // Settles to face the camera so the monogram reads on the last frame.
-        group.rotation.set(0.05 * settle * Math.sin(progress * 5), 0.2 * settle * Math.sin(progress * 6.4), 0);
+        points.rotation.y = (1 - smooth(0.64, 1, progress)) * 2.4;
 
         renderer.render(scene, camera);
         return renderer.domElement.toDataURL("image/png");
