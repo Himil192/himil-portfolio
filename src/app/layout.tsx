@@ -13,7 +13,7 @@ const display = Instrument_Serif({
 const body = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
 
 const title = `${site.name} | ${site.role}`;
-const images = [{ url: "/og.png", width: 1200, height: 630, alt: title }];
+const images = [{ url: "/og.jpg", width: 1200, height: 630, alt: title }];
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
