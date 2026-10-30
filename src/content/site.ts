@@ -113,7 +113,7 @@ export const projects: Project[] = [
     shader: "liquid",
     image: "/projects/portfolio.webp",
     imageAlt: "Portfolio hero with a liquid metal shader behind the name Himil Prajapati",
-    links: [],
+    links: [{ label: "Source", href: "https://github.com/Himil192/himil-portfolio" }],
   },
   {
     title: "TerraBloom",
