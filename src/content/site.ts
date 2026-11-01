@@ -125,6 +125,19 @@ export const projects: Project[] = [
     links: [{ label: "Source", href: site.repo }],
   },
   {
+    title: "Kevalkumar Prajapati",
+    tag: "Engineer portfolio",
+    description: "A portfolio for a mechanical project engineer, laid out as one engineering drawing.",
+    built:
+      "Modeled a pump in code with Three.js, added a scroll-driven disassembly, a guided phone tour, GLSL shaders, and light and dark themes, and tested it across 7 browser and device profiles.",
+    result: "Cut 3D draw calls by 70%, from 95 to 28 per frame.",
+    stack: ["Next.js", "TypeScript", "Three.js", "GSAP", "Playwright"],
+    shader: "contour",
+    image: "/projects/keval.webp",
+    imageAlt: "Kevalkumar Prajapati portfolio hero with a 3D pump on a dark engineering drawing",
+    links: [{ label: "Live site", href: "https://kevalkumar-prajapati-portfolio.vercel.app/" }],
+  },
+  {
     title: "TerraBloom",
     tag: "Sustainable living platform",
     description: "An eco-focused online store and blog with customer and admin dashboards.",
