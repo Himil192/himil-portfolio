@@ -138,6 +138,19 @@ export const projects: Project[] = [
     links: [{ label: "Live site", href: "https://kevalkumar-prajapati-portfolio.vercel.app/" }],
   },
   {
+    title: "Petal Hand Studio",
+    tag: "Client store and admin panel",
+    description: "A website for a handmade flower studio where customers pick an exact design and order on WhatsApp.",
+    built:
+      "Directed the whole build with Claude, Anthropic's AI coding assistant: planned each feature, wrote precise prompts, and reviewed and tested every change. It has product pages, a WhatsApp enquiry flow, and a phone-friendly admin panel with photo uploads, drag-and-drop ordering, enquiry stats, and AI-written product details.",
+    result: "Lighthouse 100 for accessibility, best practices, and SEO.",
+    stack: ["Next.js", "TypeScript", "Neon Postgres", "Vercel Blob", "Gemini API", "Claude Code"],
+    shader: "silk",
+    image: "/projects/petal-hand-studio.webp",
+    imageAlt: "Petal Hand Studio home page with the headline Flowers that never wilt, made by hand, beside photos of handmade bouquets",
+    links: [{ label: "Live site", href: "https://petal-hand-studio.vercel.app/" }],
+  },
+  {
     title: "TerraBloom",
     tag: "Sustainable living platform",
     description: "An eco-focused online store and blog with customer and admin dashboards.",
