@@ -151,6 +151,19 @@ export const projects: Project[] = [
     links: [{ label: "Live site", href: "https://petal-hand-studio.vercel.app/" }],
   },
   {
+    title: "Casto Resto",
+    tag: "Restaurant website concept",
+    description:
+      "A modern Italian restaurant site with a 3D scroll scene, a flip-through menu book, and live table booking.",
+    built:
+      "Directed the build with Claude Code, Anthropic's AI coding assistant: set the design direction, prompted and reviewed each feature, and deployed it. It has a Three.js hero, a GSAP scroll story, an interactive menu book, and a 3D floor plan where guests book tables stored in Firebase Firestore.",
+    stack: ["Vite", "JavaScript", "Three.js", "GSAP", "Firebase", "Vercel", "Claude Code"],
+    shader: "liquid",
+    image: "/projects/casto-resto.webp",
+    imageAlt: "Casto Resto home page with the headline Casto Resto, an art of slow dining, beside a gold 3D sculpture",
+    links: [{ label: "Live site", href: "https://casto-resto.vercel.app/" }],
+  },
+  {
     title: "TerraBloom",
     tag: "Sustainable living platform",
     description: "An eco-focused online store and blog with customer and admin dashboards.",
