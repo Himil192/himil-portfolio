@@ -151,6 +151,20 @@ export const projects: Project[] = [
     links: [{ label: "Live site", href: "https://petal-hand-studio.vercel.app/" }],
   },
   {
+    title: "Loopsiee Craft",
+    tag: "Client store with a 3D hero",
+    description:
+      "An online shop for a handmade crochet and pipe-cleaner business, where customers build a list and order on WhatsApp.",
+    built:
+      "Directed the build with Claude Code, Anthropic's AI coding assistant: planned each stage, reviewed and tested every change, and shipped it through reviewed pull requests. It has a Three.js and GSAP scroll hero, a shopping list that becomes a WhatsApp order, a guided admin panel with photo uploads, AI product drafts from photos with Gemini, and SEO with structured data.",
+    result: "Lighthouse mobile 97 for performance and 100 for accessibility, best practices, and SEO.",
+    stack: ["Next.js", "React", "Three.js", "GSAP", "Neon Postgres", "Vercel Blob", "Gemini API", "Claude Code"],
+    shader: "cells",
+    image: "/projects/loopsiee-craft.webp",
+    imageAlt: "Loopsiee Craft home page with the headline Loops of love, made by hand, beside a 3D crochet bouquet on a plinth",
+    links: [{ label: "Live site", href: "https://loopsiee-craft.vercel.app/" }],
+  },
+  {
     title: "Casto Resto",
     tag: "Restaurant website concept",
     description:
